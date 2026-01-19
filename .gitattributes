@@ -9,3 +9,8 @@
 /.github export-ignore
 CHANGELOG.md export-ignore
 .styleci.yml export-ignore
+
+# Store all text files with LF in repo, convert to CRLF on Windows checkout
+* text=auto eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
