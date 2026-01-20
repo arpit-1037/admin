@@ -36,12 +36,12 @@
 
                         <div class="flex gap-3">
                             <a href="{{ route('admin.categories.index') }}"
-                               class="bg-blue-600 text-black px-4 py-2 rounded hover:bg-blue-700">
+                                class="bg-blue-600 text-black px-4 py-2 rounded hover:bg-blue-700">
                                 View Categories
                             </a>
 
                             <a href="{{ route('admin.categories.create') }}"
-                               class="bg-green-600 text-black px-4 py-2 rounded hover:bg-green-700">
+                                class="bg-green-600 text-black px-4 py-2 rounded hover:bg-green-700">
                                 Add Category
                             </a>
                         </div>
@@ -56,14 +56,20 @@
                         </h4>
 
                         <p class="text-gray-600 mb-4">
-                            Product management will be available once categories are finalized.
+                            Manage products, pricing, stock, and images.
                         </p>
 
-                        <button
-                            class="bg-gray-400 text-white px-4 py-2 rounded cursor-not-allowed"
-                            disabled>
-                            Coming Soon
-                        </button>
+                        <div class="flex gap-3">
+                            <a href="{{ route('admin.products.index') }}"
+                                class="bg-blue-600 text-black px-4 py-2 rounded hover:bg-blue-700">
+                                View Products
+                            </a>
+
+                            <a href="{{ route('admin.products.create') }}"
+                                class="bg-green-600 text-black px-4 py-2 rounded hover:bg-green-700">
+                                Add Product
+                            </a>
+                        </div>
                     </div>
                 </div>
 

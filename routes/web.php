@@ -4,6 +4,15 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\User\UserDashboardController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\ProductController;
+
+// Route::middleware(['auth', 'role:admin'])
+//     ->prefix('admin')
+//     ->name('admin.')
+//     ->group(function () {
+        
+//     });
+
 
 Route::get('categories/{category}/delete',
     [CategoryController::class, 'destroy'])
@@ -15,6 +24,7 @@ Route::middleware(['auth', 'role:admin'])
     ->name('admin.')
     ->group(function () {
         Route::resource('categories', CategoryController::class);
+        Route::resource('products', ProductController::class)->except(['show', 'edit', 'update']);
     });
 
 
