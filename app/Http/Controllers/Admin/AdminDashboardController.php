@@ -8,9 +8,15 @@ use Illuminate\Http\Request;
 class AdminDashboardController extends Controller
 {
     //
+    // public function index(Request $request)
+    // {
+        // Temporary response until Blade is added
+        // return response('Admin Dashboard', 200);
+    //     return redirect('admin.dashboard');
+    // }
     public function index(Request $request)
     {
-        // Temporary response until Blade is added
-        return response('Admin Dashboard', 200);
+        // return redirect()->route('admin.dashboard');
+        return view('admin.dashboard');
     }
 }

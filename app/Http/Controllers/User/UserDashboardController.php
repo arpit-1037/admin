@@ -11,6 +11,7 @@ class UserDashboardController extends Controller
     public function index(Request $request)
     {
         // Temporary response until Blade is added
-        return response('User Dashboard', 200);
+        // return response('User Dashboard', 200);
+        return view('users.dashboard');
     }
 }
