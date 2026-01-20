@@ -3,6 +3,20 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\User\UserDashboardController;
+use App\Http\Controllers\Admin\CategoryController;
+
+Route::get('categories/{category}/delete',
+    [CategoryController::class, 'destroy'])
+    ->name('admin.categories.delete');
+
+
+Route::middleware(['auth', 'role:admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::resource('categories', CategoryController::class);
+    });
+
 
 Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
