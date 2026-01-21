@@ -5,6 +5,13 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\User\UserDashboardController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\UserController;
+
+Route::patch('admin/users/{user?}/toggle-status', [UserController::class, 'toggleStatus'])
+    ->name('users.toggle-status');
+
+Route::get('admin/users', [UserController::class, 'index'])
+    ->name('admin.users.index');
 
 // Route::middleware(['auth', 'role:admin'])
 //     ->prefix('admin')

@@ -72,6 +72,11 @@
                         </div>
                     </div>
                 </div>
+                <a href="{{ route('admin.users.index') }}"
+   class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+    Users
+</a>
+
 
             </div>
 
