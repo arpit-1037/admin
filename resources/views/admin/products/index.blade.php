@@ -6,7 +6,7 @@
     </x-slot>
 
     <div class="py-10">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-9xl mx-auto sm:px-6 lg:px-10">
 
             {{-- Action Bar --}}
             <div class="flex justify-between items-center mb-6">
@@ -14,117 +14,114 @@
                     Manage all products in the system
                 </p>
 
-                <a href="{{ route('admin.products.create') }}"
-                   class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                <a href="{{ route('admin.products.create') }}" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md
+                          font-semibold text-xs text-black uppercase tracking-widest hover:bg-green-700
+                          focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
                     Add Product
                 </a>
             </div>
 
-            {{-- Product Table --}}
-            <div class="bg-white shadow-sm sm:rounded-lg p-6">
-                <div class="overflow-x-auto">
-                    <table id="productsTable" class="w-full table-auto border-collapse">
-                        <thead>
-                            <tr class="border-b text-left text-gray-600">
-                                <th class="py-3 px-2">#</th>
-                                <th class="py-3 px-2">Image</th>
-                                <th class="py-3 px-2">Name</th>
-                                <th class="py-3 px-2">Category</th>
-                                <th class="py-3 px-2">Price</th>
-                                <th class="py-3 px-2">Stock</th>
-                                <th class="py-3 px-2">Status</th>
-                                <th class="py-3 px-2">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($products as $product)
-                                <tr class="border-b hover:bg-gray-50">
-                                    <td class="py-3 px-2">
-                                        {{ $loop->iteration }}
-                                    </td>
+            {{-- Table Card --}}
+            <div class="flex justify-center  mt-10 mb-10 px-4">
+    <div class="bg-white shadow-xl rounded-lg w-full max-w-screen-xl">
 
-                                    <td class="py-3 px-2">
-                                        @if($product->primaryImage)
-                                            <img src="{{ asset('storage/'.$product->primaryImage->path) }}"
-                                                 class="h-12 w-12 rounded object-cover">
-                                        @else
-                                            <span class="text-gray-400 text-sm">No Image</span>
-                                        @endif
-                                    </td>
+        <div class="px-5 py-8  ">
 
-                                    <td class="py-3 px-2 font-medium">
-                                        {{ $product->name }}
-                                    </td>
+            {{-- Products DataTable --}}
 
-                                    <td class="py-3 px-2">
-                                        {{ $product->category->name }}
-                                    </td>
+            <table id="productsTable"
+                   class="min-w-full divide-y divide-gray-200 text-base">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-4 text-left font-semibold text-gray-700">#</th>
+                        <th class="px-6 py-4 text-left font-semibold text-gray-700">Image</th>
+                        <th class="px-6 py-4 text-left font-semibold text-gray-700">Name</th>
+                        <th class="px-6 py-4 text-left font-semibold text-gray-700">Category</th>
+                        <th class="px-6 py-4 text-left font-semibold text-gray-700">Price</th>
+                        <th class="px-6 py-4 text-left font-semibold text-gray-700">Stock</th>
+                        <th class="px-6 py-4 text-left font-semibold text-gray-700">Status</th>
+                        <th class="px-6 py-4 text-left font-semibold text-gray-700">Actions</th>
+                    </tr>
+                </thead>
+                {{-- tbody populated by DataTables --}}
+            </table>
 
-                                    <td class="py-3 px-2">
-                                        ₹{{ number_format($product->price, 2) }}
-                                    </td>
+        </div>
 
-                                    <td class="py-3 px-2">
-                                        {{ $product->stock }}
-                                    </td>
+    </div>
+</div>
 
-                                    <td class="py-3 px-2">
-                                        @if($product->is_active)
-                                            <span class="text-green-600 font-semibold">Active</span>
-                                        @else
-                                            <span class="text-red-600 font-semibold">Inactive</span>
-                                        @endif
-                                    </td>
-
-                                    <td class="py-3 px-2">
-                                        <div class="flex gap-3">
-                                            {{-- Edit (future-ready) --}}
-                                            <a href="#"
-                                               class="text-blue-600 hover:underline">
-                                                Edit
-                                            </a>
-
-                                            {{-- Delete --}}
-                                            <form method="POST"
-                                                  action="{{ route('admin.products.destroy', $product) }}"
-                                                  onsubmit="return confirm('Are you sure you want to delete this product?')">
-                                                @csrf
-                                                @method('DELETE')
-
-                                                <button type="submit"
-                                                        class="text-red-600 hover:underline">
-                                                    Delete
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
 
         </div>
     </div>
 
-    {{-- DataTables Scripts --}}
+    {{-- Page Scripts --}}
     @push('scripts')
+
+        {{-- jQuery --}}
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+        {{-- DataTables --}}
         <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
         <script src="https://cdn.datatables.net/1.13.7/js/dataTables.tailwindcss.min.js"></script>
 
+        {{-- DataTable Init --}}
         <script>
             $(document).ready(function () {
                 $('#productsTable').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    ajax: "{{ route('admin.products.index') }}",
                     pageLength: 10,
                     lengthChange: false,
-                    ordering: true,
+                    responsive: true,
+                    order: [[2, 'asc']],
                     language: {
-                        search: "Search products:"
-                    }
+                        search: '',
+                        searchPlaceholder: 'Search products...',
+                        processing: 'Loading products...'
+                    },
+                    columns: [
+                        { data: 'DT_RowIndex', orderable: false, searchable: false },
+                        { data: 'image', orderable: false, searchable: false },
+                        { data: 'name' },
+                        { data: 'category' },
+                        { data: 'price' },
+                        { data: 'stock' },
+                        { data: 'status', orderable: false, searchable: false },
+                        { data: 'actions', orderable: false, searchable: false }
+                    ]
                 });
             });
         </script>
+        {{-- DataTables Tailwind Styling Overrides --}}
+        <style>
+            .dataTables_filter input {
+                border: 1px solid #d1d5db;
+                border-radius: 0.375rem;
+                padding: 6px 10px;
+                margin-left: 8px;
+            }
+
+            .dataTables_wrapper .dataTables_paginate .paginate_button {
+                padding: 4px 10px;
+                margin: 0 2px;
+                border-radius: 0.375rem;
+                border: 1px solid #d1d5db;
+                color: #374151 !important;
+            }
+
+            .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+                background: #16a34a !important;
+                color: white !important;
+                border-color: #16a34a;
+            }
+
+            .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+                background: #dcfce7 !important;
+                color: #065f46 !important;
+            }
+        </style>
+
     @endpush
 </x-app-layout>
