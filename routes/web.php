@@ -6,6 +6,7 @@ use App\Http\Controllers\User\UserDashboardController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Guest\CatalogController;
 
 Route::patch('admin/users/{user?}/toggle-status', [UserController::class, 'toggleStatus'])
     ->name('users.toggle-status');
@@ -50,9 +51,15 @@ Route::middleware(['auth', 'role:user'])
     });
 
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
+
+
+
+Route::get('/', [CatalogController::class, 'index'])
+    ->name('guest.products.index');
+
 
 Route::middleware([
     'auth:sanctum',
