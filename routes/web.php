@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Guest\CatalogController;
+use App\Http\Controllers\CartController;
 
 Route::patch('admin/users/{user?}/toggle-status', [UserController::class, 'toggleStatus'])
     ->name('users.toggle-status');
@@ -18,12 +19,14 @@ Route::get('admin/users', [UserController::class, 'index'])
 //     ->prefix('admin')
 //     ->name('admin.')
 //     ->group(function () {
-        
+
 //     });
 
 
-Route::get('categories/{category}/delete',
-    [CategoryController::class, 'destroy'])
+Route::get(
+    'categories/{category}/delete',
+    [CategoryController::class, 'destroy']
+)
     ->name('admin.categories.delete');
 
 
@@ -50,6 +53,14 @@ Route::middleware(['auth', 'role:user'])
             ->name('user.dashboard');
     });
 
+Route::middleware('auth')->group(function () {
+    Route::post('/cart/add', [CartController::class, 'add'])
+        ->name('cart.add');
+    Route::delete('/cart/{cartItem}', [CartController::class, 'destroy'])
+        ->name('cart.remove');
+    Route::get('/cart', [CartController::class, 'index'])
+        ->name('cart.view');
+});
 
 // Route::get('/', function () {
 //     return view('welcome');
