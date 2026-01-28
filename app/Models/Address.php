@@ -4,23 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class CartItem extends Model
+// app/Models/Address.php
+class Address extends Model
 {
     protected $fillable = [
         'user_id',
-        'product_id',
-        'quantity'
+        'name',
+        'phone',
+        'address_line',
+        'city',
+        'state',
+        'postal_code',
     ];
-
-    public function product()
-    {
-        return $this->belongsTo(Product::class);
-    }
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
-
-    
 }

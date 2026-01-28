@@ -83,8 +83,17 @@
                 ← Continue Shopping
             </a>
         </div>
+        <div class="mt-6">
+            <form action="{{ route('order.summary') }}" method="get">
+                @csrf
+                <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold">
+                    Place Order
+                </button>
+            </form>
 
+        </div>
     </div>
+
 
 </body>
 

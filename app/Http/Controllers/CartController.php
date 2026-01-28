@@ -6,9 +6,6 @@ use Illuminate\Http\Request;
 use App\Models\CartItem;
 use Illuminate\Support\Facades\Auth;
 
-
-
-
 class CartController extends Controller
 {
     public function add(Request $request)
@@ -61,4 +58,24 @@ class CartController extends Controller
             ->route('cart.view')
             ->with('success', 'Item removed from cart');
     }
+    public function summary(Request $request)
+    {
+
+        $cartItems = CartItem::with('product')
+            ->where('user_id', auth::id())
+            ->get();
+
+        $total = $cartItems->sum(function ($item) {
+            return $item->product->price * $item->quantity;
+        });
+        // $addresses = auth::user()->addresses;
+        $addresses = auth::user()->addresses ?? collect(); // assumed relation
+
+        return view('order.summary', compact(
+            'cartItems',
+            'total',
+            'addresses'
+        ));
+    }
+    
 }
