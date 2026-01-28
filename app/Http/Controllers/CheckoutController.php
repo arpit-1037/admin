@@ -85,6 +85,7 @@ class CheckoutController extends Controller
             'payment_method' => 'required|in:cod,stripe',
         ]);
 
+
         return $request->payment_method === 'cod'
             ? $this->handleCOD($request)
             : $this->handleStripe();
@@ -103,13 +104,6 @@ class CheckoutController extends Controller
         $cartItems = CartItem::with('product')
             ->where('user_id', Auth::id())
             ->get();
-
-//         dd($cartItems->sum(fn ($item) =>
-//     $item->product->price * $item->quantity
-// )
-
-//         );
-
 
         $cartItems = CartItem::with('product')
             ->where('user_id', Auth::id())
@@ -130,9 +124,10 @@ class CheckoutController extends Controller
             // 1️⃣ Calculate total
             // dd($cartItems->toArray());
 
-            $total = $cartItems->sum(fn ($item) =>
-    $item->product->price * $item->quantity
-);
+            $total = $cartItems->sum(
+                fn($item) =>
+                $item->product->price * $item->quantity
+            );
 
             // dd($total);
 
@@ -147,20 +142,16 @@ class CheckoutController extends Controller
                 'payment_intent_id' => null, // COD
             ]);
 
-            // dd($order->toArray());
-
             // 3️⃣ Order Items
             foreach ($cartItems as $item) {
+                // dd($item->toArray() );  
                 OrderItem::create([
                     'order_id'   => $order->id,
                     'product_id' => $item->product_id,
                     'price'     => (float) $item->product->price,
                     'quantity'  => $item->quantity,
                 ]);
-
-                
-            }
-        //  dd($item->toArray());  
+            } 
             // 4️⃣ Clear cart_items (THIS IS THE KEY FIX)
             CartItem::where('user_id', Auth::id())->delete();
 
@@ -171,44 +162,73 @@ class CheckoutController extends Controller
         } catch (\Throwable $e) {
             DB::rollBack();
 
-            // \Log::error('COD order failed', [
-            //     'user_id' => Auth::id(),
-            //     'error'   => $e->getMessage(),
-            // ]);
-
-            
-
             return redirect()->back()->with('error', 'Order failed.');
         }
     }
 
     private function handleStripe()
     {
-        $cartItems = CartItem::where('user_id', Auth::id())->get();
+        $user = Auth::user();
 
+        if (!$user) {
+            abort(403);
+        }
+        $cartItems = CartItem::where('user_id', Auth::id())->get();
+                    // Returns: "select * from `cart_items` where `user_id` = ?"
         DB::beginTransaction();
+        $total = $cartItems->sum(function ($item) {
+            return $item->product->price * $item->quantity;
+        });
+        // dd($total);
 
         try {
             $order = Order::create([
-                'user_id'         => Auth::id(),
-                'total_amount'   => $cartItems->sum(fn($i) => $i->price * $i->quantity),
-                'payment_method' => 'stripe',
-                'payment_status' => 'pending',
+                'user_id'        =>  Auth::id(),
+                'name'              => $user->name,
+                'email'             => $user->email,
+                'address'           => $request->address ?? $user->address ?? 'N/A',
+                'total'          =>  $total,
                 'status'         => 'pending',
+                'payment_intent_id' => 'stripe',
             ]);
+            // $order = Order::create([
+            //     'user_id'           => Auth::id(),
+            //     'name'              => $user->name,
+            //     'email'             => $user->email,
+            //     'address'           => $request->address ?? $user->address ?? 'N/A',
+            //     'total'             => $total,
+            //     'status'            => 'pending',
+            //     'payment_intent_id' => null, // COD
+            // ]);
+            // dd($order->toArray());
+
 
             foreach ($cartItems as $item) {
+                // dd($item->toArray() );
                 OrderItem::create([
                     'order_id'    => $order->id,
                     'product_id' => $item->product_id,
-                    'price'      => $item->price,
+                    'price'      => (float) $item->product->price,
                     'quantity'   => $item->quantity,
                 ]);
             }
 
+            // dd('here'); 
+
+            // foreach ($cartItems as $item) {
+            //     dd($item->toArray() );  
+            //     OrderItem::create([
+            //         'order_id'   => $order->id,
+            //         'product_id' => $item->product_id,
+            //         'price'     => (float) $item->product->price,
+            //         'quantity'  => $item->quantity,
+            //     ]);
+            // } 
+             CartItem::where('user_id', Auth::id())->delete();
             DB::commit();
 
             // Redirect to Stripe Checkout
+            
             return redirect()->route('stripe.checkout', $order->id);
         } catch (\Throwable $e) {
             DB::rollBack();

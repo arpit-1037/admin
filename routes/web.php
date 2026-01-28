@@ -13,6 +13,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\AddressController;
 use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\StripeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -133,3 +134,13 @@ Route::post('/checkout/place-order', [CheckoutController::class, 'placeOrder'])
 Route::get('/orders/success/{order}', [OrderController::class, 'success'])
     ->name('orders.success')
     ->middleware('auth');
+
+
+Route::get('/stripe/checkout/{order}', [StripeController::class, 'checkout'])
+    ->name('stripe.checkout');
+
+Route::get('/stripe/success/{order}', [StripeController::class, 'success'])
+    ->name('stripe.success');
+
+Route::get('/stripe/cancel/{order}', [StripeController::class, 'cancel'])
+    ->name('stripe.cancel');

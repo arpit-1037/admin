@@ -52,7 +52,7 @@
 
                     <p class="text-sm text-gray-700 mb-1">
                         <span class="font-semibold">Payment Status:</span>
-                        {{ ucfirst($order->payment_status) }}
+                        {{ ucfirst($order->status) }}
                     </p>
 
                     <p class="text-sm text-gray-700 mb-1">
