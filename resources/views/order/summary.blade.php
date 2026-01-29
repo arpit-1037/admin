@@ -10,17 +10,11 @@
 </head>
 
 <body class="bg-gray-100">
-
-<p class="text-red-600 font-bold">
-    {{ auth()->check() ? 'LOGGED IN' : 'NOT LOGGED IN' }}
-</p>
-
 <div class="max-w-4xl mx-auto p-6 bg-white rounded-xl shadow mt-10">
 
     <h2 class="text-xl font-bold mb-4">Delivery Address</h2>
 
     {{-- SINGLE, VALID FORM --}}
-    
 
         {{-- Address List --}}
         <div class="space-y-3">
@@ -29,8 +23,7 @@
                     <label class="block border p-3 rounded-lg cursor-pointer">
                         <input type="radio"
                                name="address_id"
-                               value="{{ $address->id }}"
-                               required>
+                               value="{{ $address->id }}" required>
                         <div class="text-sm text-gray-700 mt-1">
                             {{ $address->address_line }},
                             {{ $address->city }},
