@@ -1,0 +1,2 @@
+docker composer up -d 
+docker exec -d laravel_app sh -c "php artisan serve --host=0.0.0.0 --port=8000"
