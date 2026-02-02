@@ -22,6 +22,8 @@ class CheckoutController extends Controller
 
     public function store(Request $request)
     {
+
+        dd('here');
         $request->validate([
             'address_id' => 'required|exists:addresses,id',
             'payment_method' => 'required|in:cod',
@@ -66,7 +68,7 @@ class CheckoutController extends Controller
 
             // 4️⃣ Clear Cart
             CartItem::where('user_id', $user->id)->delete();
-
+            dd($user->email);
             DB::commit();
 
             // 5️⃣ Send Email
@@ -88,7 +90,7 @@ class CheckoutController extends Controller
 
         return $request->payment_method === 'cod'
             ? $this->handleCOD($request)
-            : $this->handleStripe();
+            : $this->handleStripe($request);
     }
 
     private function handleCOD(Request $request)
@@ -99,140 +101,111 @@ class CheckoutController extends Controller
             abort(403);
         }
 
-        // $cartItems = CartItem::where('user_id', Auth::id())->get();
-
         $cartItems = CartItem::with('product')
-            ->where('user_id', Auth::id())
+            ->where('user_id', $user->id)
             ->get();
-
-        $cartItems = CartItem::with('product')
-            ->where('user_id', Auth::id())
-            ->get();
-
-        $total = $cartItems->sum(function ($item) {
-            return $item->product->price * $item->quantity;
-        });
-
 
         if ($cartItems->isEmpty()) {
             return redirect()->back()->with('error', 'Your cart is empty.');
         }
 
+        $total = $cartItems->sum(
+            fn($item) =>
+            $item->product->price * $item->quantity
+        );
+
         DB::beginTransaction();
 
         try {
-            // 1️⃣ Calculate total
-            // dd($cartItems->toArray());
-
-            $total = $cartItems->sum(
-                fn($item) =>
-                $item->product->price * $item->quantity
-            );
-
-            // dd($total);
-
-            // 2️⃣ Create Order
             $order = Order::create([
-                'user_id'           => Auth::id(),
-                'name'              => $user->name,
-                'email'             => $user->email,
-                'address'           => $request->address ?? $user->address ?? 'N/A',
+                'user_id'           => $user->id,
                 'total'             => $total,
                 'status'            => 'pending',
-                'payment_intent_id' => null, // COD
+                'payment_intent_id' => null,
             ]);
 
-            // 3️⃣ Order Items
             foreach ($cartItems as $item) {
-                // dd($item->toArray() );  
                 OrderItem::create([
                     'order_id'   => $order->id,
-                    'product_id' => $item->product_id,
-                    'price'     => (float) $item->product->price,
-                    'quantity'  => $item->quantity,
-                ]);
-            } 
-            // 4️⃣ Clear cart_items (THIS IS THE KEY FIX)
-            CartItem::where('user_id', Auth::id())->delete();
-
-            DB::commit();
-
-            // 5️⃣ Redirect to success
-            return redirect()->route('orders.success', $order->id);
-        } catch (\Throwable $e) {
-            DB::rollBack();
-
-            return redirect()->back()->with('error', 'Order failed.');
-        }
-    }
-
-    private function handleStripe()
-    {
-        $user = Auth::user();
-
-        if (!$user) {
-            abort(403);
-        }
-        $cartItems = CartItem::where('user_id', Auth::id())->get();
-                    // Returns: "select * from `cart_items` where `user_id` = ?"
-        DB::beginTransaction();
-        $total = $cartItems->sum(function ($item) {
-            return $item->product->price * $item->quantity;
-        });
-        // dd($total);
-
-        try {
-            $order = Order::create([
-                'user_id'        =>  Auth::id(),
-                'name'              => $user->name,
-                'email'             => $user->email,
-                'address'           => $request->address ?? $user->address ?? 'N/A',
-                'total'          =>  $total,
-                'status'         => 'pending',
-                'payment_intent_id' => 'stripe',
-            ]);
-            // $order = Order::create([
-            //     'user_id'           => Auth::id(),
-            //     'name'              => $user->name,
-            //     'email'             => $user->email,
-            //     'address'           => $request->address ?? $user->address ?? 'N/A',
-            //     'total'             => $total,
-            //     'status'            => 'pending',
-            //     'payment_intent_id' => null, // COD
-            // ]);
-            // dd($order->toArray());
-
-
-            foreach ($cartItems as $item) {
-                // dd($item->toArray() );
-                OrderItem::create([
-                    'order_id'    => $order->id,
                     'product_id' => $item->product_id,
                     'price'      => (float) $item->product->price,
                     'quantity'   => $item->quantity,
                 ]);
             }
 
-            // dd('here'); 
+            CartItem::where('user_id', $user->id)->delete();
+            DB::afterCommit(function () use ($user, $order) {
+                $order->load('items.product');
 
-            // foreach ($cartItems as $item) {
-            //     dd($item->toArray() );  
-            //     OrderItem::create([
-            //         'order_id'   => $order->id,
-            //         'product_id' => $item->product_id,
-            //         'price'     => (float) $item->product->price,
-            //         'quantity'  => $item->quantity,
-            //     ]);
-            // } 
-             CartItem::where('user_id', Auth::id())->delete();
+                // Mail::to($user->email)->queue(
+                //     new OrderPlacedMail($order)
+                // );
+            });
+            Mail::to($user->email)->queue(
+                new OrderPlacedMail($order)
+            );
+            return redirect()->route('orders.success', $order->id);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            // TEMP: log error to debug
+            logger()->error($e->getMessage());
+
+            return redirect()->back()->with('error', 'Order failed.');
+        }
+    }
+
+    private function handleStripe(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            abort(403);
+        }
+
+        $cartItems = CartItem::with('product')
+            ->where('user_id', $user->id)
+            ->get();
+
+        if ($cartItems->isEmpty()) {
+            return redirect()->back()->with('error', 'Your cart is empty.');
+        }
+
+        $total = $cartItems->sum(
+            fn($item) => $item->product->price * $item->quantity
+        );
+        
+
+        DB::beginTransaction();
+
+        try {
+            $order = Order::create([
+                'user_id'           => $user->id,
+                'total'             => $total,
+                'status'            => 'pending',
+                'payment_intent_id' => 'stripe', // update after payment success
+            ]);
+
+            foreach ($cartItems as $item) {
+                OrderItem::create([
+                    'order_id'   => $order->id,
+                    'product_id' => $item->product_id,
+                    'price'      => (float) $item->product->price,
+                    'quantity'   => $item->quantity,
+                ]);
+            }
+
+            CartItem::where('user_id', $user->id)->delete();
+
             DB::commit();
 
-            // Redirect to Stripe Checkout
-            
             return redirect()->route('stripe.checkout', $order->id);
         } catch (\Throwable $e) {
             DB::rollBack();
-            return back()->with('error', 'Stripe initiation failed.');
+
+            logger()->error($e->getMessage());
+
+            return redirect()->back()->with('error', 'Stripe initiation failed.');
         }
     }
 }

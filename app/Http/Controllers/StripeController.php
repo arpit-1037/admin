@@ -50,6 +50,7 @@ class StripeController extends Controller
                 'payment_intent_id' => request('payment_intent'),
             ]);
         }
+        //  Mail::to($order->user->email)->send(new OrderPlacedMail($order));
 
         return redirect()->route('orders.success', $order->id);
     }

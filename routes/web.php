@@ -40,6 +40,9 @@ Route::middleware(['auth', 'role:admin'])
         Route::get('users', [UserController::class, 'index'])
             ->name('users.index');
 
+        Route::get('orders', [\App\Http\Controllers\Admin\OrderController::class, 'index'])
+            ->name('orders.index');
+
         Route::get(
             'categories/{category}/delete',
             [CategoryController::class, 'destroy']
@@ -84,6 +87,10 @@ Route::middleware('auth')->group(function () {
     // ADDRESS
     Route::post('/address/store', [AddressController::class, 'store'])
         ->name('address.store');
+
+    // Force select address for checkout
+    Route::post('/address/select', [AddressController::class, 'select'])
+        ->name('address.select');
 
     // CHECKOUT
     Route::get('/checkout', [CheckoutController::class, 'index'])

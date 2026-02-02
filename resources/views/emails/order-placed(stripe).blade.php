@@ -16,7 +16,7 @@
     <p>
         <strong>Order ID:</strong> {{ $order->id }}<br>
         <strong>Total:</strong> ${{ number_format($order->total, 2) }}<br>
-        <strong>Payment:</strong> Cash on Delivery
+        <strong>Payment:</strong> Stripe
     </p>
 
     <p>We will notify you when your order is shipped.</p>

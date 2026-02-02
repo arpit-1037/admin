@@ -12,21 +12,24 @@ class CartController extends Controller
     {
         $request->validate([
             'product_id' => 'required|exists:products,id',
+            'quantity'   => 'required|integer|min:1',
         ]);
 
         $user = auth::user();
+        $quantity = $request->quantity;
 
         $cartItem = CartItem::where('user_id', $user->id)
             ->where('product_id', $request->product_id)
             ->first();
 
         if ($cartItem) {
-            $cartItem->increment('quantity');
+            // ✅ Add selected quantity
+            $cartItem->increment('quantity', $quantity);
         } else {
             CartItem::create([
-                'user_id' => $user->id,
+                'user_id'    => $user->id,
                 'product_id' => $request->product_id,
-                'quantity' => 1,
+                'quantity'   => $quantity, // ✅ real counter value
             ]);
         }
 
@@ -77,5 +80,4 @@ class CartController extends Controller
             'addresses'
         ));
     }
-    
 }

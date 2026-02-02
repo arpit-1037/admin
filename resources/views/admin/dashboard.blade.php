@@ -72,10 +72,46 @@
                         </div>
                     </div>
                 </div>
-                <a href="{{ route('admin.users.index') }}"
-   class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-    Users
-</a>
+
+                {{-- User Management --}}
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6">
+                        <h4 class="text-md font-semibold mb-2">
+                            User Management
+                        </h4>
+
+                        <p class="text-gray-600 mb-4">
+                            Allow Users
+                        </p>
+
+                        <div class="flex gap-3">
+                            <a href="{{ route('admin.users.index') }}"
+                                class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                Users
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6">
+                        <h4 class="text-md font-semibold mb-2">
+                            Order Management
+                        </h4>
+
+                        <p class="text-gray-600 mb-4">
+                            Manage Orders
+                        </p>
+
+                        <div class="flex gap-3">
+                            <a href="{{ route('admin.orders.index') }}"
+                                class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                Orders
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
 
 
             </div>
