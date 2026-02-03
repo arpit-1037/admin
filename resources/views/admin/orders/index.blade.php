@@ -24,11 +24,11 @@
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th class="px-6 py-4 text-left font-semibold text-gray-700">#</th>
-                                    <th class="px-6 py-4 text-left font-semibold text-gray-700">Name</th>
-                                    <th class="px-6 py-4 text-left font-semibold text-gray-700">Email</th>
+                                    <th class="px-6 py-4 text-left font-semibold text-gray-700">User ID</th>
                                     <th class="px-6 py-4 text-left font-semibold text-gray-700">Total</th>
-                                    <th class="px-6 py-4 text-left font-semibold text-gray-700">Status</th>
-                                    <th class="px-6 py-4 text-left font-semibold text-gray-700">Created</th>
+                                    <th class="px-6 py-4 text-center font-semibold text-gray-700">Status</th>
+                                    <th class="px-6 py-4 text-left font-semibold text-gray-700">Payment Intent</th>
+                                    <th class="px-6 py-4 text-left font-semibold text-gray-700">Created At</th>
                                 </tr>
                             </thead>
                         </table>
@@ -61,7 +61,7 @@
                     lengthChange: false,
                     responsive: true,
 
-                    // ✅ ORDER BY created_at (REAL COLUMN)
+                    // created_at column index = 5
                     order: [[5, 'desc']],
 
                     language: {
@@ -72,17 +72,37 @@
 
                     columns: [
                         { data: 'DT_RowIndex', orderable: false, searchable: false },
-                        { data: 'name' },
-                        { data: 'email' },
+                        { data: 'user_id' },
                         { data: 'total' },
-                        { data: 'status', orderable: false, searchable: false },
+                        {
+                            data: 'status',
+                            orderable: false,
+                            searchable: false,
+                            className: 'text-center',
+                            render: function (data) {
+                                let color =
+                                    data === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                                        data === 'completed' ? 'bg-green-100 text-green-700' :
+                                            'bg-red-100 text-red-700';
+
+                                return `<span class="px-3 py-1 rounded-full text-sm font-medium ${color}">
+                                                ${data}
+                                            </span>`;
+                            }
+                        },
+                        {
+                            data: 'payment_intent_id',
+                            render: function (data) {
+                                return data ?? '<span class="text-gray-400">—</span>';
+                            }
+                        },
                         { data: 'created_at' }
                     ]
                 });
             });
         </script>
 
-        {{-- Tailwind Overrides --}}
+        {{-- Tailwind Overrides (SAME AS ALL OTHER TABLES) --}}
         <style>
             .dataTables_filter input {
                 border: 1px solid #d1d5db;

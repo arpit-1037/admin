@@ -23,12 +23,10 @@
                         class="relative inline-flex items-center bg-blue-600 hover:bg-indigo-500 text-white px-4 py-1.5 rounded-md text-sm font-medium shadow transition">
                         <span>Cart</span>
 
-                        @if ($cartCount > 0)
-                            <span
-                                class="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full px-2 py-0.5">
-                                {{ $cartCount }}
-                            </span>
-                        @endif
+                        <span id="cart-count"
+                            class="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full px-2 py-0.5 {{ $cartCount > 0 ? '' : 'hidden' }}">
+                            {{ $cartCount }}
+                        </span>
                     </a>
 
                     <form method="POST" action="{{ route('logout') }}" class="inline">
@@ -99,16 +97,15 @@
 
                             {{-- Add to Cart --}}
                             @auth
-                                <form method="POST" action="{{ route('cart.add') }}">
-                                    @csrf
-                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                    <input type="hidden" name="quantity" class="qty-hidden" value="1">
+                                <div class="flex items-center">
+                                    <input type="hidden" class="qty-hidden" value="1">
 
-                                    <button type="submit"
-                                        class="inline-flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-full text-xs font-semibold">
+                                    <button type="button"
+                                        class="add-to-cart inline-flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-full text-xs font-semibold"
+                                        data-product-id="{{ $product->id }}">
                                         Add to Cart
                                     </button>
-                                </form>
+                                </div>
                             @endauth
 
                             @guest
@@ -129,8 +126,9 @@
         </div>
     </div>
 
-    {{-- ✅ Quantity Script --}}
+    {{-- Quantity + AJAX Cart Script --}}
     <script>
+        // Quantity controls
         document.addEventListener('click', function (e) {
             const wrapper = e.target.closest('[data-min]');
             if (!wrapper) return;
@@ -141,19 +139,57 @@
             const max = parseInt(wrapper.dataset.max);
             let value = parseInt(input.value);
 
-            if (e.target.classList.contains('qty-increase') && value < max) {
-                value++;
-            }
-
-            if (e.target.classList.contains('qty-decrease') && value > min) {
-                value--;
-            }
+            if (e.target.classList.contains('qty-increase') && value < max) value++;
+            if (e.target.classList.contains('qty-decrease') && value > min) value--;
 
             input.value = value;
             if (hidden) hidden.value = value;
-            // alert(value);   
         });
+
+        // Add to cart AJAX
+        document.addEventListener('click', function (e) {
+            const btn = e.target.closest('.add-to-cart');
+            if (!btn) return;
+
+            const productId = btn.dataset.productId;
+            const qtyInput = btn.closest('.flex')?.querySelector('.qty-hidden');
+            const quantity = qtyInput ? qtyInput.value : 1;
+
+            btn.disabled = true;
+
+            fetch("{{ route('cart.action') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    action: 'add',
+                    product_id: productId,
+                    quantity: quantity
+                })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        updateCartCount(data.cart_count);
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(() => alert('Something went wrong'))
+                .finally(() => btn.disabled = false);
+        });
+
+        function updateCartCount(count) {
+            const el = document.getElementById('cart-count');
+            if (!el) return;
+
+            el.textContent = count;
+            el.classList.remove('hidden');
+        }
     </script>
+
 </body>
 
 </html>

@@ -80,4 +80,99 @@ class CartController extends Controller
             'addresses'
         ));
     }
+    public function clear()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            abort(403);
+        }
+        CartItem::where('user_id', $user->id)->delete();
+        // dd('here');
+
+        return redirect()->route('cart.view')
+            ->with('success', 'Cart cleared successfully.');
+    }
+
+    public function handleAjax(Request $request)
+    {
+        $user = auth::user();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
+        $action    = $request->input('action');
+        $productId = (int) $request->input('product_id', 0);
+        $quantity  = max(1, (int) $request->input('quantity', 1));
+
+        $success = false;
+        $message = 'Invalid action';
+
+        switch ($action) {
+
+            case 'add':
+                if ($productId > 0) {
+                    $cartItem = CartItem::where('user_id', $user->id)
+                        ->where('product_id', $productId)
+                        ->first();
+
+                    if ($cartItem) {
+                        $cartItem->increment('quantity', $quantity);
+                    } else {
+                        CartItem::create([
+                            'user_id'    => $user->id,
+                            'product_id' => $productId,
+                            'quantity'   => $quantity,
+                        ]);
+                    }
+
+                    $success = true;
+                    $message = 'Added to cart';
+                }
+                break;
+
+            case 'remove':
+                if ($productId > 0) {
+                    $deleted = CartItem::where('user_id', $user->id)
+                        ->where('product_id', $productId)
+                        ->delete();
+
+                    $success = $deleted > 0;
+                    $message = $success ? 'Removed from cart' : 'Item not found';
+                }
+                break;
+
+            case 'clear_all':
+                CartItem::where('user_id', $user->id)->delete();
+                $success = true;
+                $message = 'Cart cleared';
+                break;
+
+            case 'update':
+                if ($productId > 0 && $quantity > 0) {
+                    $updated = CartItem::where('user_id', $user->id)
+                        ->where('product_id', $productId)
+                        ->update(['quantity' => $quantity]);
+
+                    $success = $updated > 0;
+                    $message = $success ? 'Quantity updated' : 'Item not found';
+                }
+                break;
+        }
+
+        $cartCount = CartItem::where('user_id', Auth::id())
+            ->select('product_id')
+            ->distinct()
+            ->count();
+            
+        return response()->json([
+            'success'    => $success,
+            'message'    => $message,
+            'cart_count' => $cartCount,
+        ]);
+    }
 }

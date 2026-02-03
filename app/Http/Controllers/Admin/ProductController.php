@@ -70,13 +70,17 @@ public function index(Request $request)
 
     public function store(Request $request)
     {
+// dd($request);    
         $request->validate([
-            'name' => 'required|string|max:255',
-            'category_id' => 'required|exists:categories,id',
-            'price' => 'required|numeric',
-            'stock' => 'required|integer',
-            'images.*' => 'image|max:2048',
-        ]);
+        'name'        => 'required|string|max:255',
+        'category_id' => 'required|exists:categories,id',
+        'description' => 'nullable|string',
+        'price'       => 'required|numeric|min:0',
+        'stock'       => 'required|integer|min:0',
+        'images'      => 'required|array|min:1',
+        'images.*'    => 'image|mimes:jpg,jpeg,png,webp|max:2048',
+    ]);
+        // dd('here'); 
 
         $product = Product::create([
             'name' => $request->name,
@@ -85,6 +89,7 @@ public function index(Request $request)
             'description' => $request->description,
             'price' => $request->price,
             'stock' => $request->stock,
+            'is_active' => true,
         ]);
 
         if ($request->hasFile('images')) {

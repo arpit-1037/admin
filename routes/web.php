@@ -40,6 +40,12 @@ Route::middleware(['auth', 'role:admin'])
         Route::get('users', [UserController::class, 'index'])
             ->name('users.index');
 
+        Route::get('products/create', [ProductController::class, 'create'])
+            ->name('products.create');
+
+        Route::post('products/store', [ProductController::class, 'store'])
+            ->name('admin.products.store');
+
         Route::get('orders', [\App\Http\Controllers\Admin\OrderController::class, 'index'])
             ->name('orders.index');
 
@@ -70,6 +76,10 @@ Route::middleware(['auth', 'role:user'])
 
 Route::middleware('auth')->group(function () {
 
+    // AJAX CART ACTIONS (NEW)
+    Route::post('/cart/action', [CartController::class, 'handleAjax'])
+        ->name('cart.action');
+
     // CART
     Route::post('/cart/add', [CartController::class, 'add'])
         ->name('cart.add');
@@ -79,6 +89,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/cart', [CartController::class, 'index'])
         ->name('cart.view');
+
+    Route::delete('/cart', [CartController::class, 'clear'])
+        ->name('cart.clear');
 
     // ORDER SUMMARY
     Route::get('/order-summary', [OrderController::class, 'summary'])

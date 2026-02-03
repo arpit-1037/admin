@@ -25,7 +25,10 @@ class AppServiceProvider extends ServiceProvider
     {
         View::composer('*', function ($view) {
             if (Auth::check()) {
-                $cartCount = CartItem::where('user_id', Auth::id())->sum('quantity');
+                $cartCount = CartItem::where('user_id', Auth::id())
+                    ->select('product_id')
+                    ->distinct()
+                    ->count();
             } else {
                 $cartCount = 0;
             }
