@@ -15,6 +15,15 @@ class CatalogController extends Controller
             ->latest()
             ->paginate(12);
 
-        return view('guest.products.index', compact('products'));
+        return view('guest.products.index', compact('products'))->with('Welcome_new_user', 'Explore our latest products!');
+    }
+
+    public function view()
+    {
+        $products = Product::with('primaryImage', 'category')
+            ->where('is_active', true)
+            ->latest()
+            ->paginate(12);
+         return view('guest.products.index', compact('products'));
     }
 }

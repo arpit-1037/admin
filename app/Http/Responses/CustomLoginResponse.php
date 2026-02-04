@@ -13,6 +13,6 @@ class CustomLoginResponse implements LoginResponse
         if ($user->role === 'admin') {
             return redirect()->intended('/admin/dashboard');
         }
-        return redirect()->intended('/user/dashboard');
+        return redirect()->intended('/user/dashboard')->with('welcome_message', 'Welcome back, ' . $user->name . '!');
     }
 }

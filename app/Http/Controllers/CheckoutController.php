@@ -144,7 +144,7 @@ class CheckoutController extends Controller
             Mail::to($user->email)->queue(
                 new OrderPlacedMail($order)
             );
-            return redirect()->route('orders.success', $order->id);
+            return redirect()->route('orders.success', $order->id) ->with('order_success', 'Your order has been placed successfully!');
         } catch (\Throwable $e) {
             DB::rollBack();
 

@@ -77,4 +77,12 @@
             </div>
         </div>
     </div>
+    @if (session('order_success'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                alertSuccess(@json(session('order_success')));
+            });
+        </script>
+    @endif
+
 </x-app-layout>

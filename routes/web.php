@@ -122,7 +122,7 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', [CatalogController::class, 'index'])
+Route::get('/', [CatalogController::class, 'view'])
     ->name('guest.products.index');
 
 /*
@@ -136,13 +136,12 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [CatalogController::class, 'index'])->name('dashboard');
 });
 //order
 // The validation is there to prevent users from viewing someone else’s order by URL tampering.
-Route::get('/order/success/{order}', function (Order $order) {
+Route::get('/order/success/{order}', function (Order
+ $order) {
     abort_if($order->user_id !== auth::id(), 403);
     return view('order.success', compact('order'));
 })->middleware('auth')->name('order.success');

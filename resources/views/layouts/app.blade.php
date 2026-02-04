@@ -14,12 +14,55 @@
 
     <!-- App Assets -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link rel="stylesheet"
-      href="https://cdn.datatables.net/1.13.7/css/dataTables.tailwindcss.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.tailwindcss.min.css">
 
 
     <!-- Livewire Styles -->
     @livewireStyles
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        window.alertSuccess = function (message, title = 'Success') {
+            Swal.fire({
+                icon: 'success',
+                title: title,
+                text: message,
+                timer: 1600,
+                showConfirmButton: false
+            });
+        };
+
+        window.alertError = function (message, title = 'Error') {
+            Swal.fire({
+                icon: 'error',
+                title: title,
+                text: message
+            });
+        };
+
+        window.alertConfirm = function ({ title, text, confirmText = 'Yes' }) {
+            return Swal.fire({
+                icon: 'warning',
+                title: title,
+                text: text,
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: confirmText
+            });
+        };
+
+        window.alertLoading = function (message = 'Please wait...') {
+            Swal.fire({
+                title: message,
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+        };
+    </script>
+
+
 </head>
 
 <body class="font-sans antialiased">
@@ -45,12 +88,13 @@
 
     {{-- Modals --}}
     @stack('modals')
-
+ 
     {{-- REQUIRED: Page-level scripts (DataTables, etc.) --}}
     @stack('scripts')
 
     {{-- Livewire Scripts --}}
     @livewireScripts
+    
 </body>
 
 </html>
