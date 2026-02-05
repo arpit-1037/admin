@@ -96,8 +96,8 @@ class CartController extends Controller
 
     public function handleAjax(Request $request)
     {
+        // dd("sasss");
         $user = auth::user();
-
         if (!$user) {
             return response()->json([
                 'success' => false,

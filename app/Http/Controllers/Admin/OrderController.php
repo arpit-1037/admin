@@ -15,7 +15,7 @@ class OrderController extends Controller
 
             $orders = Order::query()->select([
                 'id',
-                'user_id',
+                
                 'total',
                 'status',
                 'payment_intent_id',
@@ -26,9 +26,7 @@ class OrderController extends Controller
                 ->addIndexColumn()
 
                 // user_id (explicitly returned to avoid DataTables error)
-                ->editColumn('user_id', function ($order) {
-                    return $order->user_id;
-                })
+                
 
                 // total formatting
                 ->editColumn('total', function ($order) {
@@ -62,6 +60,6 @@ class OrderController extends Controller
                 ->make(true);
         }
 
-        return view('admin.orders.index');
+        return view('user.orders.index');
     }
 }

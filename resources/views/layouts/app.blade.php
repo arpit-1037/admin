@@ -16,6 +16,8 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.tailwindcss.min.css">
 
+    <script src="https://cdn.tailwindcss.com"></script>
+
 
     <!-- Livewire Styles -->
     @livewireStyles

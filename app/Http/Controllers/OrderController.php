@@ -9,6 +9,7 @@ use App\Models\OrderItem;
 use App\Models\Order;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\OrderPlacedMail;
+use Yajra\DataTables\Facades\DataTables;
 
 class OrderController extends Controller
 {
@@ -48,5 +49,77 @@ class OrderController extends Controller
         );
 
         return view('order.success', compact('order'));
+    }
+
+    public function viewOrders()
+    {
+        $orders = Order::with('items.product')
+            ->where('user_id', Auth::id())
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('users.view-orders', compact('orders'));
+    }
+
+    public function index(Request $request)
+    {
+        if ($request->ajax()) {
+
+            $orders = Order::where('user_id', auth::id())
+                ->latest()
+                ->select([
+                    'id',
+                    'user_id',
+                    'total',
+                    'status',
+                    'payment_intent_id',
+                    'created_at',
+                ]);
+
+            return DataTables::of($orders)
+                ->addIndexColumn()
+
+                ->editColumn(
+                    'total',
+                    fn($order) =>
+                    '₹' . number_format($order->total, 2)
+                )
+
+                ->editColumn('status', function ($order) {
+                    $color = match ($order->status) {
+                        'completed', 'paid' => 'bg-green-100 text-green-700',
+                        'failed', 'cancelled' => 'bg-red-100 text-red-700',
+                        default => 'bg-yellow-100 text-yellow-700',
+                    };
+
+                    return '<span class="px-3 py-1 rounded-full text-sm font-medium ' . $color . '">'
+                        . ucfirst($order->status) .
+                        '</span>';
+                })
+
+                ->editColumn(
+                    'payment_intent_id',
+                    fn($order) =>
+                    $order->payment_intent_id ?? '—'
+                )
+
+                ->editColumn(
+                    'created_at',
+                    fn($order) =>
+                    $order->created_at->format('d M Y')
+                )
+
+                // ->addColumn(
+                //     'action',
+                //     fn($order) =>
+                //     '<a href="' . route('orders.show', $order->id) . '"
+                //    class="text-blue-600 hover:underline">View</a>'
+                // )
+
+                ->rawColumns(['status', 'action'])
+                ->make(true);
+        }
+
+        return view('user.orders.index');
     }
 }

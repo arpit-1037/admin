@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\User\UserDashboardController;
@@ -14,6 +13,7 @@ use App\Http\Controllers\AddressController;
 use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\StripeController;
+use BaconQrCode\Renderer\Module\RoundnessModule;
 
 /*
 |--------------------------------------------------------------------------
@@ -55,29 +55,19 @@ Route::middleware(['auth', 'role:admin'])
         )->name('categories.delete');
     });
 
-/*
-|--------------------------------------------------------------------------
-| USER ROUTES
-|--------------------------------------------------------------------------
-*/
-
-Route::middleware(['auth', 'role:user'])
-    ->prefix('user')
-    ->group(function () {
-        Route::get('/dashboard', [UserDashboardController::class, 'index'])
-            ->name('user.dashboard');
-    });
 
 /*
 |--------------------------------------------------------------------------
 | AUTHENTICATED SHOP FLOW (CART → SUMMARY → CHECKOUT)
 |--------------------------------------------------------------------------
 */
+Route::post('/cart/action', [CartController::class, 'handleAjax'])
+        ->name('cart.action');
 
 Route::middleware('auth')->group(function () {
 
     // AJAX CART ACTIONS (NEW)
-    Route::post('/cart/action', [CartController::class, 'handleAjax'])
+    Route::get('/cart/action', [CartController::class, 'handleAjax'])
         ->name('cart.action');
 
     // CART
@@ -122,7 +112,7 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', [CatalogController::class, 'view'])
+Route::get('/', [CatalogController::class, 'index'])
     ->name('guest.products.index');
 
 /*
@@ -138,10 +128,28 @@ Route::middleware([
 ])->group(function () {
     Route::get('/dashboard', [CatalogController::class, 'index'])->name('dashboard');
 });
-//order
+
+/*
+|--------------------------------------------------------------------------
+| USER ROUTES
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth', 'role:user'])
+    ->prefix('user')
+    ->group(function () {
+        Route::get('/dashboard', [CatalogController::class, 'index'])
+            ->name('user.dashboard');
+
+        Route::get('/orders', [OrderController::class, 'viewOrders'])
+            ->name('order.view');
+        Route::get('/orders/index', [OrderController::class, 'index'])
+            ->name('user.orders.index');
+    });
+
 // The validation is there to prevent users from viewing someone else’s order by URL tampering.
 Route::get('/order/success/{order}', function (Order
- $order) {
+$order) {
     abort_if($order->user_id !== auth::id(), 403);
     return view('order.success', compact('order'));
 })->middleware('auth')->name('order.success');

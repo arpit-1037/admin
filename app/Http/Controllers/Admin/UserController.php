@@ -60,6 +60,13 @@ class UserController extends Controller
         //     ], 403);
         // }
 
+        // ❌ Do not allow admin accounts to be deactivated
+        if ($user->role === 'admin') {
+            return response()->json([
+                'message' => 'Admin accounts cannot be deactivated.'
+            ], 403);
+        }
+
         $user->is_active = ! $user->is_active;
         $user->save();
 
