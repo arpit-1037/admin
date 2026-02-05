@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
 </head>
-
+    
 <body>
     <h2>Order Placed Successfully</h2>
 
@@ -15,7 +15,7 @@
 
     <p>
         <strong>Order ID:</strong> {{ $order->id }}<br>
-        <strong>Total:</strong> ${{ number_format($order->total, 2) }}<br>
+        <strong>Total:</strong> ₹{{ number_format($order->total, 2) }}<br>
         <strong>Payment:</strong> Cash on Delivery
     </p>
 

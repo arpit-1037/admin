@@ -14,8 +14,7 @@ class OrderController extends Controller
         if ($request->ajax()) {
 
             $orders = Order::query()->select([
-                'id',
-                
+                'id',  
                 'total',
                 'status',
                 'payment_intent_id',

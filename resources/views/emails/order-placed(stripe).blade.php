@@ -9,7 +9,7 @@
 
 <body>
     <h2>Order Placed Successfully</h2>
-
+    
     <p>Thank you for your order.</p>
     
 

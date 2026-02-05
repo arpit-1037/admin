@@ -1,14 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
+@extends('layouts.user')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Summary</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
+@section('title', 'Order Summary')
 
-<body class="bg-gray-100">
+@section('content')
+    <body class="bg-gray-100">
 <div class="max-w-4xl mx-auto p-6 bg-white rounded-xl shadow mt-10">
 
     <h2 class="text-xl font-bold mb-4">Delivery Address</h2>
@@ -58,13 +53,13 @@
         @foreach($cartItems as $item)
             <div class="flex justify-between text-sm mb-2">
                 <span>{{ $item->product->name }} × {{ $item->quantity }}</span>
-                <span>${{ number_format($item->product->price * $item->quantity, 2) }}</span>
+                <span>₹{{ number_format($item->product->price * $item->quantity, 2) }}</span>
             </div>
         @endforeach
 
         <div class="flex justify-between font-bold border-t pt-4 mt-4">
             <span>Total</span>
-            <span>${{ number_format($total, 2) }}</span>
+            <span>₹{{ number_format($total, 2) }}</span>
         </div>
 
         {{-- Checkout Button --}}
@@ -126,6 +121,5 @@
     }
 </script>
 
-</body>
-</html>
-    
+    </body>
+@endsection

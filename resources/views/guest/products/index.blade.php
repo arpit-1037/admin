@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Products</title>
@@ -9,6 +10,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <!-- Toastr -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script>
         window.alertSuccess = function (message, title = '') {
             Swal.fire({
@@ -44,51 +48,78 @@
                 didOpen: () => Swal.showLoading()
             });
         };
+        function showSweetAlert(message, icon = 'success') {
+            Swal.fire({
+                toast: true,
+                icon: icon,
+                title: message,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+        }
     </script>
 </head>
 
 <body class="bg-gray-100">
 
-    <header class="bg-white shadow">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between">
-            <h1 class="text-xl font-semibold text-gray-800">
-                <a href="/">Product Catalog</a>
-            </h1>
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex h-16 items-center justify-between">
 
-            <div class="space-x-4">
-                @auth
-                    <a href="{{ route('order.view') }}"
-                        class="relative inline-flex items-center bg-blue-600 hover:bg-indigo-500 text-white px-4 py-1.5 rounded-md text-sm font-medium shadow transition">
-                        My Orders
+                <!-- Logo / Title -->
+                <div class="flex items-center">
+                    <a href="/" class="text-lg sm:text-xl font-bold text-gray-900 hover:text-indigo-600 transition">
+                        Product Catalog
                     </a>
-                    <a href="{{ route('cart.view') }}"
-                        class="relative inline-flex items-center bg-blue-600 hover:bg-indigo-500 text-white px-4 py-1.5 rounded-md text-sm font-medium shadow transition">
-                        Cart
-                        <span id="cart-count"
-                            class="absolute -top-2 -right-2 bg-gray-600 text-white text-xs font-bold rounded-full px-2 py-0.5 {{ $cartCount > 0 ? '' : 'hidden' }}">
-                            {{ $cartCount }}
-                        </span>
-                    </a>
+                </div>
 
-                    <form method="POST" action="{{ route('logout') }}" class="inline">
-                        @csrf
-                        <button type="submit"
-                            class="text-sm text-white rounded-md bg-red-600 hover:bg-red-700 transition px-3 py-1.5">
-                            Logout
-                        </button>
-                    </form>
-                @endauth
+                <!-- Navigation -->
+                <div class="flex items-center space-x-3 sm:space-x-4">
+                    @auth
+                        <!-- My Orders -->
+                        <a href="{{ route('order.view') }}"
+                            class="inline-flex items-center rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition">
+                            My Orders
+                        </a>
 
-                @guest
-                    <a href="{{ route('login') }}"
-                        class="text-sm text-white rounded-md bg-blue-600 hover:bg-blue-700 transition px-3 py-1.5">
-                        Login
-                    </a>
-                    <a href="{{ route('register') }}"
-                        class="text-sm text-white rounded-md bg-blue-700 hover:bg-blue-600 transition px-3 py-1.5">
-                        Register
-                    </a>
-                @endguest
+                        <!-- Cart -->
+                        <a href="{{ route('cart.view') }}"
+                            class="relative inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 transition">
+                            Cart
+                            <span id="cart-count" class="absolute -top-2 -right-2 min-w-[20px] text-center bg-blue-500 hover:bg-indigo-600 text-white text-xs font-bold rounded-full px-1.5 py-0.5
+                                {{ $cartCount > 0 ? 'block' : '' }}">
+                                 @if ($cartCount > 0)
+                                 {{ $cartCount }}
+                                 @endif
+                            </span>
+                        </a>
+
+                        <!-- Logout -->
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit"
+                                class="inline-flex items-center rounded-md bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600 transition focus:outline-none focus:ring-2 focus:ring-red-400">
+                                Logout
+                            </button>
+                        </form>
+                    @endauth
+
+                    @guest
+                        <!-- Login -->
+                        <a href="{{ route('login') }}"
+                            class="inline-flex items-center rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition">
+                            Login
+                        </a>
+
+                        <!-- Register -->
+                        <a href="{{ route('register') }}"
+                            class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 transition">
+                            Register
+                        </a>
+                    @endguest
+                </div>
             </div>
         </div>
     </header>
@@ -127,7 +158,7 @@
 
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                alertSuccess(@json(session('welcome_message')));
+                showSweetAlert(@json(session('welcome_message')));
             });
         </script>
     @endif
@@ -140,8 +171,6 @@
             });
         </script>
     @endif
-
-
     <script>
         function updateQty(button, delta) {
             const card = button.closest('.product-card');

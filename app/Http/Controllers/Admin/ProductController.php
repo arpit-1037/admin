@@ -70,7 +70,7 @@ public function index(Request $request)
 
     public function store(Request $request)
     {
-// dd($request);    
+      // dd($request);    
         $request->validate([
         'name'        => 'required|string|max:255',
         'category_id' => 'required|exists:categories,id',

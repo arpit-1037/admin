@@ -1,27 +1,98 @@
-<x-app-layout>
-    <x-slot name="header">
-        <span>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Orders
-            </h2>
-        </span>
-        <div class="flex items-center justify-end gap-4">
-            
-            <a href="{{ route('user.dashboard') }}"
-                class="relative inline-flex items-center bg-blue-600 hover:bg-indigo-500 text-white px-4 py-1.5 rounded-md text-sm font-medium shadow transition">
-                Dashboard
-            </a>
-        </div>
-    </x-slot>
+@extends('layouts.user')
 
+@section('title', 'My Orders')
+
+@push('scripts')
+    <script>
+        $(document).ready(function () {
+            $('#ordersTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('user.orders.index') }}",
+                pageLength: 10,
+                lengthChange: false,
+                responsive: true,
+
+                // created_at column index = 5
+                order: [[5, 'desc']],
+
+                language: {
+                    search: '',
+                    searchPlaceholder: 'Search orders...',
+                    processing: 'Loading orders...'
+                },
+
+                columns: [
+                    { data: 'DT_RowIndex', orderable: false, searchable: false },
+                    { data: 'user_id' },
+                    { data: 'total' },
+                    {
+                        data: 'status',
+                        orderable: false,
+                        searchable: false,
+                        className: 'text-center',
+                        render: function (data) {
+                            let color =
+                                data === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                                    data === 'completed' ? 'bg-green-100 text-green-700' :
+                                        'bg-red-100 text-red-700';
+
+                            return `<span class="px-3 py-1 rounded-full text-sm font-medium ${color}">
+                                                                    ${data}
+                                                                </span>`;
+                        }
+                    },
+                    {
+                        data: 'payment_intent_id',
+                        render: function (data) {
+                            return data ?? '<span class="text-gray-400">—</span>';
+                        }
+                    },
+                    { data: 'created_at' }
+                ]
+            });
+        });
+    </script>
+@endpush
+@push('styles')
+    <style>
+        .dataTables_filter input {
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            padding: 6px 10px;
+            margin-left: 8px;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            padding: 4px 10px;
+            margin: 0 2px;
+            border-radius: 0.375rem;
+            border: 1px solid #d1d5db;
+            color: #374151 !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: #16a34a !important;
+            color: white !important;
+            border-color: #16a34a;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: #dcfce7 !important;
+            color: #065f46 !important;
+        }
+    </style>    
+@endpush
+
+@section('content')
     <div class="py-10">
         <div class="max-w-9xl mx-auto sm:px-6 lg:px-10">
 
             {{-- Action Bar --}}
             <div class="flex justify-between items-center mb-6">
-                <p class="text-gray-600">
-                    Manage all orders in the system
-                </p>
+                <h1 class="text-gray-600">
+                    All Past orders
+                </h1>
             </div>
 
             {{-- Table Card --}}
@@ -49,96 +120,4 @@
         </div>
     </div>
 
-    {{-- Page Scripts --}}
-    @push('scripts')
-
-        {{-- jQuery --}}
-        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
-        {{-- DataTables --}}
-        <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-        <script src="https://cdn.datatables.net/1.13.7/js/dataTables.tailwindcss.min.js"></script>
-
-        {{-- DataTable Init --}}
-        <script>
-            $(document).ready(function () {
-                $('#ordersTable').DataTable({
-                    processing: true,
-                    serverSide: true,
-                    ajax: "{{ route('user.orders.index') }}",
-                    pageLength: 10,
-                    lengthChange: false,
-                    responsive: true,
-
-                    // created_at column index = 5
-                    order: [[5, 'desc']],
-
-                    language: {
-                        search: '',
-                        searchPlaceholder: 'Search orders...',
-                        processing: 'Loading orders...'
-                    },
-
-                    columns: [
-                        { data: 'DT_RowIndex', orderable: false, searchable: false },
-                        { data: 'user_id' },
-                        { data: 'total' },
-                        {
-                            data: 'status',
-                            orderable: false,
-                            searchable: false,
-                            className: 'text-center',
-                            render: function (data) {
-                                let color =
-                                    data === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                                        data === 'completed' ? 'bg-green-100 text-green-700' :
-                                            'bg-red-100 text-red-700';
-
-                                return `<span class="px-3 py-1 rounded-full text-sm font-medium ${color}">
-                                                        ${data}
-                                                    </span>`;
-                            }
-                        },
-                        {
-                            data: 'payment_intent_id',
-                            render: function (data) {
-                                return data ?? '<span class="text-gray-400">—</span>';
-                            }
-                        },
-                        { data: 'created_at' }
-                    ]
-                });
-            });
-        </script>
-
-        {{-- Tailwind Overrides (SAME AS ALL OTHER TABLES) --}}
-        <style>
-            .dataTables_filter input {
-                border: 1px solid #d1d5db;
-                border-radius: 0.375rem;
-                padding: 6px 10px;
-                margin-left: 8px;
-            }
-
-            .dataTables_wrapper .dataTables_paginate .paginate_button {
-                padding: 4px 10px;
-                margin: 0 2px;
-                border-radius: 0.375rem;
-                border: 1px solid #d1d5db;
-                color: #374151 !important;
-            }
-
-            .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-                background: #16a34a !important;
-                color: white !important;
-                border-color: #16a34a;
-            }
-
-            .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-                background: #dcfce7 !important;
-                color: #065f46 !important;
-            }
-        </style>
-
-    @endpush
-</x-app-layout>
+@endsection
