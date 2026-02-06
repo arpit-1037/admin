@@ -15,10 +15,24 @@
     {{-- DataTables --}}
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/dataTables.tailwindcss.min.js"></script>
+    <!-- Toastr -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 
     {{-- SweetAlert helpers --}}
     <script>
+        function showSweetAlert(message, icon = 'success') {
+            Swal.fire({
+                toast: true,
+                icon: icon,
+                title: message,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+        }
         window.alertSuccess = (msg) =>
             Swal.fire({ icon: 'success', text: msg, timer: 1500, showConfirmButton: false });
 
