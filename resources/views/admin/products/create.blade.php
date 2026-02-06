@@ -1,10 +1,12 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Create Product
-        </h2>
+    <x-slot name="sidebar">
+        @include('partials.sidebar')
     </x-slot>
 
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800">Create Product</h2>
+    </x-slot>
+    {{-- MAIN CONTENT --}}
     <div class="py-10 m-9">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
 
@@ -80,6 +82,25 @@
                             </p>
                         </div>
 
+                        {{-- Status --}}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Status
+                            </label>
+
+                            <div class="flex gap-6">
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="is_active" value="1" checked>
+                                    <span class="ml-2">Active</span>
+                                </label>
+
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="is_active" value="0">
+                                    <span class="ml-2">Inactive</span>
+                                </label>
+                            </div>
+                        </div>
+
                         {{-- Actions --}}
                         <div class="flex justify-end gap-4 pt-4 border-t">
                             <a href="{{ route('admin.products.index') }}"
@@ -99,4 +120,7 @@
 
         </div>
     </div>
+
+
+    {{-- Page content --}}
 </x-app-layout>

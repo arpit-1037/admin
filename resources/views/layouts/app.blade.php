@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
     {{-- Meta --}}
     <meta charset="utf-8">
@@ -12,19 +13,22 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-    {{-- App CSS & JS (Vite) --}}
+    {{-- App CSS & JS --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    {{-- Third-party CSS --}}
+    {{-- jQuery (MUST be first) --}}
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    {{-- DataTables CSS --}}
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.tailwindcss.min.css">
 
-    <!-- Toastr -->
+    {{-- DataTables JS --}}
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.tailwindcss.min.js"></script>
+
+    {{-- Toastr --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
-
-
-
     {{-- Livewire --}}
     @livewireStyles
 
@@ -34,7 +38,22 @@
 
     {{-- SweetAlert2 --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
+    <script>
+        window.confirmDelete = function (button) {
+            const form = button.closest('form');
+
+            alertConfirm({
+                title: 'Are you sure?',
+                text: 'This action cannot be undone',
+                confirmText: 'Delete'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        };
+    </script>
+
 
     {{-- Global Alert Helpers (ONCE) --}}
     <script>
@@ -119,4 +138,5 @@
     @livewireScripts
 
 </body>
+
 </html>

@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\User\UserDashboardController;
@@ -43,8 +44,18 @@ Route::middleware(['auth', 'role:admin'])
         Route::get('products/create', [ProductController::class, 'create'])
             ->name('products.create');
 
+        Route::get('products/edit/{product}', [ProductController::class, 'edit'])
+            ->name('products.edit');
+        Route::put('products/update/{product}', [ProductController::class, 'update'])
+            ->name('products.update');
+
         Route::post('products/store', [ProductController::class, 'store'])
             ->name('admin.products.store');
+
+        Route::delete(
+            'products/images/{image}',
+            [ProductController::class, 'destroyImage']
+        )->name('products.images.destroy');
 
         Route::get('orders', [\App\Http\Controllers\Admin\OrderController::class, 'index'])
             ->name('orders.index');
@@ -62,7 +73,7 @@ Route::middleware(['auth', 'role:admin'])
 |--------------------------------------------------------------------------
 */
 Route::post('/cart/action', [CartController::class, 'handleAjax'])
-        ->name('cart.action');
+    ->name('cart.action');
 
 Route::middleware('auth')->group(function () {
 
