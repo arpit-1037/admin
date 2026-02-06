@@ -8,6 +8,22 @@
         const CART_ACTION_URL = "{{ route('cart.action') }}";
         const CSRF = document.querySelector('meta[name="csrf-token"]').content;
 
+        function handleEmptyCartUI() {
+            // Remove cart table
+            document.getElementById('cart-wrapper')?.remove();
+
+            // Show empty cart block
+            document.getElementById('empty-cart')?.classList.remove('hidden');
+
+            // Disable place order button
+            const btn = document.getElementById('place-order-btn');
+            if (btn) {
+                btn.disabled = true;
+                btn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+                btn.classList.add('bg-gray-400', 'cursor-not-allowed');
+            }
+        }
+
         // REMOVE ITEM
         document.addEventListener('click', function (e) {
             const btn = e.target.closest('.remove-item');
@@ -50,8 +66,7 @@
                         alertSuccess('Item removed');
 
                         if (!document.querySelector('.cart-row')) {
-                            document.getElementById('cart-wrapper').remove();
-                            document.getElementById('empty-cart')?.classList.remove('hidden');
+                            handleEmptyCartUI();
                         }
                     });
             });
@@ -86,11 +101,17 @@
                             return;
                         }
 
-                        document.getElementById('cart-wrapper').remove();
-                        document.getElementById('empty-cart')?.classList.remove('hidden');
+                        handleEmptyCartUI();
                         alertSuccess('Cart cleared');
                     });
             });
+        });
+
+        document.getElementById('place-order-form')?.addEventListener('submit', function (e) {
+            if (document.getElementById('place-order-btn')?.disabled) {
+                e.preventDefault();
+                alertError('Your cart is empty. Please add items before placing an order.');
+            }
         });
     </script>
 @endpush
@@ -116,7 +137,7 @@
                 <div id="empty-cart" class="bg-white p-6 rounded shadow text-center text-gray-600">
                     Your cart is empty.
                 </div>
-            @else
+            @else   
 
                 <div id="cart-wrapper" class="bg-white rounded shadow overflow-hidden">
 
@@ -180,9 +201,13 @@
             </div>
 
             <div class="mt-6">
-                <form action="{{ route('order.summary') }}" method="get">
+                <form id="place-order-form" action="{{ route('order.summary') }}" method="get">
                     @csrf
-                    <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold">
+
+                    <button type="submit" id="place-order-btn" class="w-full py-3 rounded-lg font-semibold
+                            {{ $cartItems->isEmpty()
+        ? 'bg-gray-400 cursor-not-allowed'
+        : 'bg-indigo-600 hover:bg-indigo-700 text-white' }}" {{ $cartItems->isEmpty() ? 'disabled' : '' }}>
                         Place Order
                     </button>
                 </form>

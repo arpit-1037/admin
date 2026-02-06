@@ -6,7 +6,8 @@ use App\Models\Order;
 use Stripe\Stripe;
 use Stripe\Checkout\Session as StripeSession;
 use Illuminate\Support\Facades\Auth;
-
+use App\Models\CartItem;
+use Illuminate\Support\Facades\Mail;
 class StripeController extends Controller
 {
     public function checkout($orderId)
@@ -51,7 +52,7 @@ class StripeController extends Controller
             ]);
         }
         //  Mail::to($order->user->email)->send(new OrderPlacedMail($order));
-
+       CartItem::where('user_id', $order->user_id)->delete();
         return redirect()->route('orders.success', $order->id);
     }
 

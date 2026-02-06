@@ -182,7 +182,7 @@ class CheckoutController extends Controller
             $order = Order::create([
                 'user_id'           => $user->id,
                 'total'             => $total,
-                'status'            => 'pending',
+                'status'            => 'paid',
                 'payment_intent_id' => 'stripe', // update after payment success
             ]);
 
@@ -194,8 +194,6 @@ class CheckoutController extends Controller
                     'quantity'   => $item->quantity,
                 ]);
             }
-
-            CartItem::where('user_id', $user->id)->delete();
 
             DB::commit();
 

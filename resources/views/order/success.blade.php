@@ -38,12 +38,16 @@
                 <div class="bg-gray-50 border rounded-lg p-4 text-left mb-6">
                     <p class="text-sm text-gray-700 mb-1">
                         <span class="font-semibold">Order ID:</span>
-                        {{ $order->order_number ?? $order->id }}
+                        {{ $order->id }}
                     </p>
 
                     <p class="text-sm text-gray-700 mb-1">
                         <span class="font-semibold">Payment Method:</span>
-                        {{ strtoupper($order->payment_method) }}
+                        @if ($order->status == 'pending')
+                            <span class="font-semibold">Cash on Delivery</span>
+                        @else
+                            <span class="font-semibold">Stripe</span>
+                        @endif
                     </p>
 
                     <p class="text-sm text-gray-700 mb-1">

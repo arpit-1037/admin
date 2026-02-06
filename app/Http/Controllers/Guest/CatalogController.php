@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Guest;
+
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
@@ -28,12 +29,15 @@ class CatalogController extends Controller
         $query = Product::with('primaryImage', 'category')
             ->where('is_active', true);
 
-        // 🔍 Search
+        // 🔍 Search (NAME + DESCRIPTION) ✅ FIX
         if (!empty($search)) {
-            $query->where('name', 'like', '%' . $search . '%');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('description', 'like', '%' . $search . '%');
+            });
         }
 
-        // 📂 Category filter
+        // 📂 Category filter (unchanged)
         if ($categoryId > 0) {
             $query->where('category_id', $categoryId);
         }
@@ -42,24 +46,23 @@ class CatalogController extends Controller
             ->latest()
             ->paginate(12, ['*'], 'page', $page);
 
-        // AJAX response (LEGACY STYLE)
+        // AJAX response (LEGACY STYLE) — unchanged
         if ($request->ajax()) {
             return response()->json([
                 'html'  => view(
                     'guest.products.partials.products-grid',
-                    compact('products',)
+                    compact('products')
                 )->render(),
                 'count' => $products->total(),
             ]);
         }
+
         $cat = Category::latest()->get();
-       
 
-        // Normal page load
-
+        // Normal page load — unchanged
         return view('guest.products.index', [
-            'products'   => $products,
-            'cat' => $cat,
+            'products' => $products,
+            'cat'      => $cat,
         ]);
     }
 
