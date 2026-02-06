@@ -1,10 +1,6 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Order Successful
-        </h2>
-    </x-slot>
-
+@extends('layouts.user')
+@section('title', 'Order Success')
+@section('content')
     <div class="py-12">
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white shadow rounded-lg p-8 text-center">
@@ -80,9 +76,8 @@
     @if (session('order_success'))
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                alertSuccess(@json(session('order_success')));
+                showSweetAlert(@json(session('order_success')));
             });
         </script>
     @endif
-
-</x-app-layout>
+@endsection
