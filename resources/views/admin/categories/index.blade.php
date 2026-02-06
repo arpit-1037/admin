@@ -1,8 +1,12 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Categories
+            Manage all categories in the system
         </h2>
+    </x-slot>
+
+    <x-slot name="sidebar">
+        @include('partials.sidebar')
     </x-slot>
 
     <div class="py-10">
@@ -10,19 +14,16 @@
 
             {{-- Action Bar --}}
             <div class="flex justify-between items-center mb-6">
-                <p class="text-gray-600">
-                    Manage all categories in the system
-                </p>
 
-                <a href="{{ route('admin.categories.create') }}" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md
+                <a href="{{ route('admin.categories.create') }}" class=" inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md
                           font-semibold text-xs text-black uppercase tracking-widest hover:bg-green-700 mb-6
-                          focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                          focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ">
                     Add Category
                 </a>
             </div>
 
             {{-- Table Card --}}
-            <div class="flex justify-center mt-10 mb-10 px-4">
+            <div class="flex justify-center mt-6 mb-10 px-4">
                 <div class="bg-white shadow-xl rounded-lg w-full max-w-screen-xl">
                     <div class="px-5 py-8">
 
@@ -49,7 +50,7 @@
                                         <td class="px-6 py-4 text-center">
                                             <span
                                                 class="px-3 py-1 rounded-full text-sm font-medium
-                                                    {{ $category->is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
+                                                        {{ $category->is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
                                                 {{ $category->is_active ? 'Active' : 'Inactive' }}
                                             </span>
                                         </td>
@@ -65,8 +66,8 @@
                                                 @csrf
                                                 @method('DELETE')
 
-                                                <button type="submit" class="text-red-600 hover:underline"
-                                                    onclick="return confirm('Are you sure?')">
+                                                <button type="button" class="text-red-600 hover:underline"
+                                                    onclick="return confirmDelete(this)">
                                                     Delete
                                                 </button>
                                             </form>
@@ -106,6 +107,20 @@
                     }
                 });
             });
+
+            function confirmDelete(button) {
+                const form = button.closest('form');
+
+                alertConfirm({
+                    title: 'Are you sure?',
+                    text: 'This action cannot be undone',
+                    confirmText: 'Yes, delete it'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            }
         </script>
 
         {{-- DataTables Tailwind Styling Overrides (SAME AS PRODUCTS) --}}

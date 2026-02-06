@@ -17,42 +17,56 @@ class CategoryController extends Controller
 
     public function create()
     {
-        return view('admin.categories.create');
+        $categories = Category::whereNull('parent_id')->get();
+
+        return view('admin.categories.create', compact('categories'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'parent_id' => 'nullable|exists:categories,id',
         ]);
 
         Category::create([
             'name' => $request->name,
             'slug' => Str::slug($request->name),
-            'is_active' => true,
+            'parent_id' => $request->parent_id,
+            'is_active' => $request->boolean('is_active'),
         ]);
 
-        return redirect()->route('admin.categories.index')
+        return redirect()
+            ->route('admin.categories.index')
             ->with('success', 'Category created successfully.');
     }
 
     public function edit(Category $category)
     {
-        return view('admin.categories.edit', compact('category'));
+        $categories = Category::whereNull('parent_id')
+            ->where('id', '!=', $category->id)
+            ->get();
+
+        return view('admin.categories.edit', compact('category', 'categories'));
     }
 
     public function update(Request $request, Category $category)
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'parent_id' => 'nullable|exists:categories,id',
+            'is_active' => 'required|in:0,1',
         ]);
 
         $category->update([
             'name' => $request->name,
             'slug' => Str::slug($request->name),
+            'parent_id' => $request->parent_id,
+            'is_active' => $request->boolean('is_active'),
         ]);
 
-        return redirect()->route('admin.categories.index')
+        return redirect()
+            ->route('admin.categories.index')
             ->with('success', 'Category updated successfully.');
     }
 
@@ -63,5 +77,4 @@ class CategoryController extends Controller
         return redirect()->route('admin.categories.index')
             ->with('success', 'Category deleted successfully.');
     }
-    
 }
