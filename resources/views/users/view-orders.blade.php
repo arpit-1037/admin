@@ -2,122 +2,105 @@
 
 @section('title', 'My Orders')
 
-@push('scripts')
-    <script>
-        $(document).ready(function () {
-            $('#ordersTable').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: "{{ route('user.orders.index') }}",
-                pageLength: 10,
-                lengthChange: false,
-                responsive: true,
-
-                // created_at column index = 5
-                order: [[5, 'desc']],
-
-                language: {
-                    search: '',
-                    searchPlaceholder: 'Search orders...',
-                    processing: 'Loading orders...'
-                },
-
-                columns: [
-                    { data: 'DT_RowIndex', orderable: false, searchable: false },
-                    { data: 'user_id' },
-                    { data: 'total' },
-                    {
-                        data: 'status',
-                        orderable: false,
-                        searchable: false,
-                        className: 'text-center',
-                        render: function (data) {
-                            let color =
-                                data === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                                    data === 'completed' ? 'bg-green-100 text-green-700' :
-                                        'bg-red-100 text-red-700';
-
-                            return `<span class="px-3 py-1 rounded-full text-sm font-medium ${color}">
-                                                                    ${data}
-                                                                </span>`;
-                        }
-                    },
-                    {
-                        data: 'payment_intent_id',
-                        render: function (data) {
-                            return data ?? '<span class="text-gray-400">—</span>';
-                        }
-                    },
-                    { data: 'created_at' }
-                ]
-            });
-        });
-    </script>
-@endpush
-@push('styles')
-    <style>
-        .dataTables_filter input {
-            border: 1px solid #d1d5db;
-            border-radius: 0.375rem;
-            padding: 6px 10px;
-            margin-left: 8px;
-        }
-
-        .dataTables_wrapper .dataTables_paginate .paginate_button {
-            padding: 4px 10px;
-            margin: 0 2px;
-            border-radius: 0.375rem;
-            border: 1px solid #d1d5db;
-            color: #374151 !important;
-        }
-
-        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-            background: #16a34a !important;
-            color: white !important;
-            border-color: #16a34a;
-        }
-
-        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-            background: #dcfce7 !important;
-            color: #065f46 !important;
-        }
-    </style>    
-@endpush
-
 @section('content')
-    <div class="py-10">
-        <div class="max-w-9xl mx-auto sm:px-6 lg:px-10">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto px-4 py-10">
 
-            {{-- Action Bar --}}
-            <div class="flex justify-between items-center mb-6">
-                <h1 class="text-gray-600">
-                    All Past orders
-                </h1>
-            </div>
+        {{-- ORDERS --}}
+        <div class="lg:col-span-2 space-y-6">
 
-            {{-- Table Card --}}
-            <div class="flex justify-center mt-10 mb-10 px-4">
-                <div class="bg-white shadow-xl rounded-lg w-full max-w-screen-xl">
-                    <div class="px-5 py-8">
+            @forelse ($orders as $order)
 
-                        <table id="ordersTable" class="min-w-full divide-y divide-gray-200 text-base">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-4 text-left font-semibold text-gray-700">sr. no</th>
-                                    <th class="px-6 py-4 text-left font-semibold text-gray-700">your Order ID</th>
-                                    <th class="px-6 py-4 text-left font-semibold text-gray-700">Total</th>
-                                    <th class="px-6 py-4 text-center font-semibold text-gray-700">Status</th>
-                                    <th class="px-6 py-4 text-left font-semibold text-gray-700">Payment Intent</th>
-                                    <th class="px-6 py-4 text-left font-semibold text-gray-700">Created At</th>
-                                </tr>
-                            </thead>
-                        </table>
+                <div class="bg-white border rounded-2xl shadow-sm p-5 space-y-4">
+
+                    {{-- Order Header --}}
+                    <div class="flex justify-between items-center bg-blue-50 p-3 rounded-lg">
+                        <div>
+                            <p class="text-sm text-gray-700">
+                                Order #{{ $order->id }}
+                            </p>
+                            <p class="text-xs text-gray-400">
+                                {{ $order->created_at->format('d M Y') }}
+                            </p>
+                        </div>
+
+                        <span class="px-3 py-1 rounded-full text-xs font-medium
+                                        {{ $order->status === 'paid'
+                ? 'bg-green-100 text-green-700'
+                : ($order->status === 'failed'
+                    ? 'bg-red-100 text-red-700'
+                    : 'bg-yellow-100 text-yellow-700') }}">
+                            {{ ucfirst($order->status) }}
+                        </span>
+                    </div>
+
+                    {{-- Items --}}
+                    <div class="space-y-4">
+                        @foreach ($order->items as $item)
+
+                            @php
+                                $product = $item->product;
+                                $imageUrl = $product && $product->primaryImage
+                                    ? asset('storage/' . $product->primaryImage->path)
+                                    : asset('storage/public/products/placeholders/product.png');
+                            @endphp
+
+                            <div class="flex gap-4 items-center border rounded-xl p-4">
+
+                                {{-- Image --}}
+                                <div class="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                                    <img src="{{ $imageUrl }}" class="w-full h-full object-cover"
+                                        onerror="this.src='{{ asset('storage/products/placeholders/product.png') }}'">
+                                </div>
+
+                                {{-- Info --}}
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="text-sm font-semibold text-gray-900 truncate">
+                                        {{ $product?->name ?? 'Product unavailable' }}
+                                    </h3>
+
+                                    <div class="mt-1 text-xs text-gray-500 flex justify-between">
+                                        <span>Qty: {{ $item->quantity }}</span>
+                                        <span>₹{{ number_format($item->price, 2) }}</span>
+                                    </div>
+                                </div>
+
+                                
+                            </div>
+                        @endforeach
+                        {{-- Line total --}}
+                                <div class="flex justify-end text-sm font-semibold text-gray-900">
+                                   Total = ₹{{ number_format($item->price * $item->quantity, 2) }}
+                                </div>
 
                     </div>
+
+                </div>
+
+            @empty
+                <div class="bg-white p-6 rounded-xl text-center text-gray-500">
+                    You have no orders yet.
+                </div>
+            @endforelse
+        </div>
+
+        {{-- SUMMARY --}}
+        <div>
+            <div class="bg-blue-50 border rounded-2xl shadow-sm p-5 space-y-3">
+                <div class="bg-blue-50">
+                    <h3 class="text-lg font-semibold text-gray-900">Orders Summary</h3>
+
+                    <div class="flex justify-between text-sm text-gray-600">
+                        <span>Total Orders</span>
+                        <span>{{ $orders->count() }}</span>
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 p-3 rounded-lg border-t pt-3 flex justify-between font-semibold text-gray-900">
+                    <span>Total Spent</span>
+                    <span>₹{{ number_format($orders->sum('total'), 2) }}</span>
                 </div>
             </div>
-
         </div>
-    </div>
 
+    </div>
 @endsection

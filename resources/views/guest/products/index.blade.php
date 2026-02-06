@@ -202,8 +202,6 @@
         let currentSearch = '';
         let currentCategory = 0;
 
-
-
         document.addEventListener('DOMContentLoaded', function () {
             // Initial fetch
             $(document).off('click', '.add-to-cart-btn').on('click', '.add-to-cart-btn', function (e) {

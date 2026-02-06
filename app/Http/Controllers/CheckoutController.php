@@ -109,20 +109,20 @@ class CheckoutController extends Controller
             return redirect()->back()->with('error', 'Your cart is empty.');
         }
 
-        $total = $cartItems->sum(
+        $total = round($cartItems->sum(
             fn($item) =>
             $item->product->price * $item->quantity
-        );
-
+        ));
+        // dd($total);
         DB::beginTransaction();
-
+        
         try {
             $order = Order::create([
                 'user_id'           => $user->id,
                 'total'             => $total,
                 'status'            => 'pending',
                 'payment_intent_id' => null,
-            ]);
+                ]);
 
             foreach ($cartItems as $item) {
                 OrderItem::create([
