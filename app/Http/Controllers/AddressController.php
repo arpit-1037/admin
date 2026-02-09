@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Http\Request;
 use App\Models\Address;
 use Illuminate\Support\Facades\Auth;
@@ -9,28 +10,40 @@ use Illuminate\Validation\Rule;
 // app/Http/Controllers/AddressController.php
 class AddressController extends Controller
 {
+
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required',
-            'phone' => 'required',
-            'address_line' => 'required',
-            'city' => 'required',
-            'state' => 'required',
-            'postal_code' => 'required',
-        ]);
+        $validated = $request->validate(
+            [
+                'name'         => 'required|string|max:100',
+                'phone'        => 'required|digits_between:10,15',
+                'address_line' => 'required|string|max:255',
+                'city'         => 'required|string|max:100',
+                'state'        => 'required|string|max:100',
+                'postal_code'  => 'required|string|max:20',
+            ],
+            [
+                'name.required'         => 'Name is required.',
+                'phone.required'        => 'Phone number is required.',
+                'phone.digits_between'  => 'Phone number must be between 10 and 15 digits.',
+                'address_line.required' => 'Address line is required.',
+                'city.required'         => 'City is required.',
+                'state.required'        => 'State is required.',
+                'postal_code.required'  => 'Postal code is required.',
+            ]
+        );
 
         Address::create([
-            'user_id' => auth::id(),
-            'name' => $request->name,
-            'phone' => $request->phone,
-            'address_line' => $request->address_line,
-            'city' => $request->city,
-            'state' => $request->state,
-            'postal_code' => $request->postal_code,
+            'user_id'      => auth::id(),
+            'name'         => $validated['name'],
+            'phone'        => $validated['phone'],
+            'address_line' => $validated['address_line'],
+            'city'         => $validated['city'],
+            'state'        => $validated['state'],
+            'postal_code'  => $validated['postal_code'],
         ]);
 
-        return back()->with('success', 'Address added successfully');
+        return redirect()->back()->with('success', 'Address added successfully.');
     }
     public function select(Request $request)
     {

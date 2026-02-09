@@ -9,36 +9,23 @@
         const CSRF = document.querySelector('meta[name="csrf-token"]').content;
 
         function handleEmptyCartUI() {
-            document.getElementById('cart-wrapper')?.remove();
+            document.getElementById('cart-wrapper')?.classList.add('hidden');
             document.getElementById('empty-cart')?.classList.remove('hidden');
+            document.getElementById('continue-shopping')?.classList.remove('hidden');
+
+            document.getElementById('clear-cart')?.classList.add('hidden');
 
             const btn = document.getElementById('place-order-btn');
-
             if (!btn) return;
 
-            btn.disabled = false;           // 🔑 REQUIRED
-            btn.removeAttribute('disabled');
-
+            btn.disabled = false;
             btn.type = 'button';
             btn.textContent = 'Back to Shopping';
 
-            btn.classList.remove(
-                'bg-indigo-600',
-                'hover:bg-indigo-700',
-                'bg-gray-400',
-                'cursor-not-allowed'
-            );
+            btn.className =
+                'w-full py-3 rounded-lg font-semibold bg-green-600 hover:bg-green-700 text-white';
 
-            btn.classList.add(
-                'bg-green-600',
-                'hover:bg-green-700',
-                'cursor-pointer',
-                'text-white'
-            );
-
-            btn.onclick = function () {
-                window.location.href = '/';
-            };
+            btn.onclick = () => window.location.href = '/';
         }
 
         // REMOVE ITEM  
@@ -146,86 +133,88 @@
                     Your Cart
                 </h1>
 
-                <button id="clear-cart" class="bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-700">
+                <button id="clear-cart" class="bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-700" {{ $cartItems->isEmpty() ? 'hidden' : '' }}>
                     Clear Cart
                 </button>
             </div>
 
-            @if ($cartItems->isEmpty())
-                <div id="empty-cart" class="bg-white p-6 rounded shadow text-center text-gray-600">
-                    Your cart is empty.
-                </div>
-            @else
+            <div id="empty-cart"
+                class="bg-white p-6 rounded shadow text-center text-gray-600  {{ $cartItems->isEmpty() ? '' : 'hidden' }}">
+                Your cart is empty.
+            </div>
 
-                <div id="cart-wrapper" class="bg-white rounded shadow overflow-hidden">
+            <div id="cart-wrapper"
+                class="bg-white rounded shadow overflow-hidden {{ $cartItems->isEmpty() ? 'hidden' : '' }}">
 
-                    <table class="w-full text-sm">
-                        <thead class="bg-gray-50 border-b">
-                            <tr class="text-left text-gray-600">
-                                <th class="p-4">Product</th>
-                                <th class="p-4 text-center">Price</th>
-                                <th class="p-4 text-center">Quantity</th>
-                                <th class="p-4 text-right">Subtotal</th>
-                                <th class="p-4 text-center">Action</th>
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50 border-b">
+                        <tr class="text-left text-gray-600">
+                            <th class="p-4">Product</th>
+                            <th class="p-4 text-center">Price</th>
+                            <th class="p-4 text-center">Quantity</th>
+                            <th class="p-4 text-right">Subtotal</th>
+                            <th class="p-4 text-center">Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="cart-body">
+                        @foreach ($cartItems as $item)
+                            <tr class="border-b cart-row" data-product-id="{{ $item->product_id }}"
+                                data-price="{{ $item->product->price }}" data-quantity="{{ $item->quantity }}">
+
+                                <td class="p-4">
+                                    {{ $item->product->name }}
+                                </td>
+
+                                <td class="p-4 text-center">
+                                    ₹{{ number_format($item->product->price, 2) }}
+                                </td>
+
+                                <td class="p-4 text-center">
+                                    {{ $item->quantity }}
+                                </td>
+
+                                <td class="p-4 text-right font-semibold row-subtotal">
+                                    ₹{{ number_format($item->product->price * $item->quantity, 2) }}
+                                </td>
+
+                                <td class="p-4 text-center">
+                                    <button class="remove-item text-red-600 hover:text-red-800 text-sm font-semibold"
+                                        data-product-id="{{ $item->product_id }}">
+                                        Remove
+                                    </button>
+                                </td>
+
                             </tr>
-                        </thead>
+                        @endforeach
+                    </tbody>
+                </table>
 
-                        <tbody id="cart-body">
-                            @foreach ($cartItems as $item)
-                                <tr class="border-b cart-row" data-product-id="{{ $item->product_id }}"
-                                    data-price="{{ $item->product->price }}" data-quantity="{{ $item->quantity }}">
-
-                                    <td class="p-4">
-                                        {{ $item->product->name }}
-                                    </td>
-
-                                    <td class="p-4 text-center">
-                                        ₹{{ number_format($item->product->price, 2) }}
-                                    </td>
-
-                                    <td class="p-4 text-center">
-                                        {{ $item->quantity }}
-                                    </td>
-
-                                    <td class="p-4 text-right font-semibold row-subtotal">
-                                        ₹{{ number_format($item->product->price * $item->quantity, 2) }}
-                                    </td>
-
-                                    <td class="p-4 text-center">
-                                        <button class="remove-item text-red-600 hover:text-red-800 text-sm font-semibold"
-                                            data-product-id="{{ $item->product_id }}">
-                                            Remove
-                                        </button>
-                                    </td>
-
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-
-                    <div class="p-4 flex justify-end bg-gray-50">
-                        <div id="cart-total" class="text-lg font-bold text-gray-800">
-                            Total: ₹{{ number_format($total, 2) }}
-                        </div>
+                <div class="p-4 flex justify-end bg-gray-50">
+                    <div id="cart-total" class="text-lg font-bold text-gray-800">
+                        Total: ₹{{ number_format($total, 2) }}
                     </div>
-
                 </div>
-            @endif
 
-            <div class="mt-6 shopping">
+            </div>
+
+
+            <div class="mt-6 shopping" id="continue-shopping">
                 <a href="{{ route('guest.products.index') }}" class="text-sm text-indigo-600 hover:underline">
                     ← Continue Shopping
                 </a>
             </div>
 
             <div class="mt-6">
-                <form id="place-order-form" action="{{ route('order.summary') }}" method="get">
+                <form id="place-order-form"
+                    action="{{ $cartItems->isEmpty() ? route('guest.products.index') : route('order.summary') }}"
+                    method="get">
                     @csrf
-                    <button type="button" id="place-order-btn" class="w-full py-3 rounded-lg font-semibold
-                                    {{ $cartItems->isEmpty()
-        ? 'bg-gray-400 cursor-not-allowed'
-        : 'bg-indigo-600 hover:bg-indigo-700 text-white' }}" {{ $cartItems->isEmpty() ? 'disabled' : '' }}>
-                        Place Order
+                    <button id="place-order-btn" type="{{ $cartItems->isEmpty() ? 'button' : 'submit' }}" class="w-full py-3 rounded-lg font-semibold
+                    {{ $cartItems->isEmpty()
+        ? 'bg-green-600 hover:bg-green-700 text-white'
+        : 'bg-indigo-600 hover:bg-indigo-700 text-white' }}">
+                        {{ $cartItems->isEmpty() ? 'Back to Shopping' : 'Place Order' }}
                     </button>
                 </form>
             </div>

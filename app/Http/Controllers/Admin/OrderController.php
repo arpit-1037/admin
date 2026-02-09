@@ -13,20 +13,20 @@ class OrderController extends Controller
     {
         if ($request->ajax()) {
 
-            $orders = Order::query()->select([
-                'id',  
-                'user_id',
-                'total',
-                'status',
-                'payment_intent_id',
-                'created_at',
-            ]);
+            $orders = Order::query()
+                ->join('users', 'orders.user_id', '=', 'users.id')
+                ->select([
+                    'orders.id',
+                    'users.name as name',
+                    'users.email as email',
+                    'orders.total',
+                    'orders.status',
+                    'orders.payment_intent_id',
+                    'orders.created_at',
+                ]);
 
             return DataTables::of($orders)
                 ->addIndexColumn()
-
-                // user_id (explicitly returned to avoid DataTables error)
-                
 
                 // total formatting
                 ->editColumn('total', function ($order) {
@@ -48,15 +48,15 @@ class OrderController extends Controller
 
                 // payment_intent_id nullable handling
                 ->editColumn('payment_intent_id', function ($order) {
-                    return $order->payment_intent_id ?? '—';
+                    return $order->payment_intent_id ?? '<span class="text-gray-400">—</span>';
                 })
 
                 // date formatting
                 ->editColumn('created_at', function ($order) {
-                    return $order->created_at->format('d M Y');
+                    return \Carbon\Carbon::parse($order->created_at)->format('d M Y');
                 })
 
-                ->rawColumns(['status'])
+                ->rawColumns(['status', 'payment_intent_id'])
                 ->make(true);
         }
 

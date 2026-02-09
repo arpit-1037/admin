@@ -4,6 +4,7 @@
             Orders
         </h2>
     </x-slot>
+
     <x-slot name="sidebar">
         @include('partials.sidebar')
     </x-slot>
@@ -19,15 +20,16 @@
             </div>
 
             {{-- Table Card --}}
-            <div class="flex justify-center mt-10 mb-10 px-4">
+            <div class="flex justify-center mt-6 mb-10 px-4">
                 <div class="bg-white shadow-xl rounded-lg w-full max-w-screen-xl">
                     <div class="px-5 py-8">
 
-                        <table id="ordersTable" class="min-w-full divide-y divide-gray-200 text-base">
+                        <table id="ordersTable" class="w-full divide-y divide-gray-400 text-base">
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th class="px-6 py-4 text-left font-semibold text-gray-700">#</th>
-                                    <th class="px-6 py-4 text-left font-semibold text-gray-700">User ID</th>
+                                    <th class="px-6 py-4 text-left font-semibold text-gray-700">Name</th>
+                                    <th class="px-6 py-4 text-left font-semibold text-gray-700">Email</th>
                                     <th class="px-6 py-4 text-left font-semibold text-gray-700">Total</th>
                                     <th class="px-6 py-4 text-center font-semibold text-gray-700">Status</th>
                                     <th class="px-6 py-4 text-left font-semibold text-gray-700">Payment Intent</th>
@@ -43,7 +45,6 @@
         </div>
     </div>
 
-    {{-- Page Scripts --}}
     @push('scripts')
 
         {{-- jQuery --}}
@@ -62,10 +63,10 @@
                     ajax: "{{ route('admin.orders.index') }}",
                     pageLength: 10,
                     lengthChange: false,
-                    responsive: true,
+                    ordering: true,
+                    responsive: false, // IMPORTANT: keeps layout identical
 
-                    // created_at column index = 5
-                    order: [[5, 'desc']],
+                    order: [[6, 'desc']],
 
                     language: {
                         search: '',
@@ -75,29 +76,19 @@
 
                     columns: [
                         { data: 'DT_RowIndex', orderable: false, searchable: false },
-                        { data: 'user_id' },
+                        { data: 'name' },
+                        { data: 'email' },
                         { data: 'total' },
                         {
                             data: 'status',
                             orderable: false,
                             searchable: false,
-                            className: 'text-center',
-                            render: function (data) {
-                                let color =
-                                    data === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                                        data === 'completed' ? 'bg-green-100 text-green-700' :
-                                            'bg-red-100 text-red-700';
-
-                                return `<span class="px-3 py-1 rounded-full text-sm font-medium ${color}">
-                                                ${data}
-                                            </span>`;
-                            }
+                            className: 'text-center'
                         },
                         {
                             data: 'payment_intent_id',
-                            render: function (data) {
-                                return data ?? '<span class="text-gray-400">—</span>';
-                            }
+                            orderable: false,
+                            searchable: false
                         },
                         { data: 'created_at' }
                     ]
@@ -105,8 +96,17 @@
             });
         </script>
 
-        {{-- Tailwind Overrides (SAME AS ALL OTHER TABLES) --}}
+        {{-- EXACT SAME TAILWIND OVERRIDES AS CATEGORIES --}}
         <style>
+            table.dataTable tbody tr {
+                border-top: 1px solid #d1d5db;
+            }
+
+            table.dataTable tbody td {
+                padding: 1rem 1.5rem;
+                vertical-align: middle;
+            }
+
             .dataTables_filter input {
                 border: 1px solid #d1d5db;
                 border-radius: 0.375rem;

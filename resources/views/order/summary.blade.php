@@ -1,4 +1,4 @@
-@extends('layouts.user')
+    @extends('layouts.user')
 
 @section('title', 'Order Summary')
 
@@ -79,6 +79,23 @@
             + Add New Address
         </button>
     </div>
+
+    @if ($errors->any())
+    <div class="mb-4 rounded-lg bg-red-100 p-4 text-red-700">
+        <strong class="block mb-2">Please fix the following errors:</strong>
+        <ul class="list-disc list-inside">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+@if (session('success'))
+    <div class="mb-4 rounded-lg bg-green-100 p-4 text-green-700">
+        {{ session('success') }}
+    </div>
+@endif
 
     {{-- ADD ADDRESS FORM (SEPARATE FORM — CORRECT) --}}
     <div id="addressForm" class="hidden mt-6 border-t pt-6">

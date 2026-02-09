@@ -6,10 +6,18 @@
                 : asset('storage/placeholders/product.svg');
         @endphp
 
-        <div class="product-card bg-white border rounded-2xl shadow-sm hover:shadow-lg transition flex flex-col overflow-hidden">
+        <div
+            class="product-card bg-white border rounded-2xl shadow-sm hover:shadow-lg transition flex flex-col overflow-hidden">
 
             {{-- Image --}}
-            <div class="aspect-[4/3] bg-gray-100 overflow-hidden">
+            <div class="aspect-[4/3] bg-gray-100 overflow-hidden relative">
+
+                {{-- Category Badge --}}
+                <span
+                    class="absolute top-2 left-2 z-10 bg-black/60 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                    {{ $product->category->name ?? 'Uncategorized' }}
+                </span>
+
                 <img src="{{ $imageUrl }}" class="h-full w-full object-cover"
                     onerror="this.src='{{ asset('storage/placeholders/product.svg') }}'">
             </div>
@@ -38,10 +46,8 @@
                         <button type="button"
                             class="qty-minus h-7 w-7 flex justify-center items-center text-gray-600">−</button>
 
-                        <input type="text"
-                            class="e qty-input
-                             w-8 text-center bg-transparent text-gray-800 font-semibold text-xs" value="1"
-                            readonly>
+                        <input type="text" class="e qty-input
+                                 w-8 text-center bg-transparent text-gray-800 font-semibold text-xs" value="1" readonly>
 
                         <button type="button"
                             class="qty-plus h-7 w-7 flex justify-center items-center text-gray-600">+</button>
@@ -82,7 +88,7 @@
     <div class="flex justify-center gap-2 mt-10">
         @for ($page = 1; $page <= $products->lastPage(); $page++)
             <a href="#" class="pagination-link px-3 py-1 rounded-md border text-sm
-                               {{ $page == $products->currentPage()
+                                       {{ $page == $products->currentPage()
                     ? 'bg-indigo-600 text-white border-indigo-600'
                     : 'bg-white text-gray-700 hover:bg-gray-100' }}" data-page="{{ $page }}">
                 {{ $page }}

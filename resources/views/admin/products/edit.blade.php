@@ -9,134 +9,193 @@
     <div class="py-10 m-9">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white shadow-sm sm:rounded-lg">
-                <div class="p-6">
+                <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-white shadow-lg rounded-xl p-6 sm:p-8">
 
-                    <form method="POST"
-                          action="{{ route('admin.products.update', $product) }}"
-                          enctype="multipart/form-data"
-                          class="space-y-6">
-                        @csrf
-                        @method('PUT')
+        <form method="POST"
+              action="{{ route('admin.products.update', $product) }}"
+              enctype="multipart/form-data"
+              class="space-y-8">
+            @csrf
+            @method('PUT')
 
-                        {{-- Product Name --}}
-                        <div>
-                            <label class="block text-sm font-medium mb-1">Product Name</label>
-                            <input name="name" type="text" required
-                                   value="{{ $product->name }}"
-                                   class="w-full border-gray-300 rounded-md">
-                        </div>
+            <!-- Product Name -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Product Name
+                </label>
+                <input
+                    name="name"
+                    type="text"
+                    required
+                    value="{{ $product->name }}"
+                    class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-700
+                           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                           transition"
+                >
+            </div>
 
-                        {{-- Category --}}
-                        <div>
-                            <label class="block text-sm font-medium mb-1">Category</label>
-                            <select name="category_id" required class="w-full border-gray-300 rounded-md">
-                                @foreach($categories as $category)
-                                    <option value="{{ $category->id }}"
-                                        {{ $product->category_id == $category->id ? 'selected' : '' }}>
-                                        {{ $category->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+            <!-- Category -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Category
+                </label>
+                <select
+                    name="category_id"
+                    required
+                    class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-700
+                           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                           transition"
+                >
+                    @foreach($categories as $category)
+                        <option value="{{ $category->id }}"
+                            {{ $product->category_id == $category->id ? 'selected' : '' }}>
+                            {{ $category->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
 
-                        {{-- Description --}}
-                        <div>
-                            <label class="block text-sm font-medium mb-1">Description</label>
-                            <textarea name="description" rows="4"
-                                class="w-full border-gray-300 rounded-md">{{ $product->description }}</textarea>
-                        </div>
+            <!-- Description -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Description
+                </label>
+                <textarea
+                    name="description"
+                    rows="4"
+                    class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-700
+                           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                           resize-none transition"
+                >{{ $product->description }}</textarea>
+            </div>
 
-                        {{-- Price & Stock --}}
-                        <div class="grid grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-sm font-medium mb-1">Price</label>
-                                <input name="price" type="number" step="0.01"
-                                       value="{{ $product->price }}"
-                                       class="w-full border-gray-300 rounded-md">
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium mb-1">Stock</label>
-                                <input name="stock" type="number"
-                                       value="{{ $product->stock }}"
-                                       class="w-full border-gray-300 rounded-md">
-                            </div>
-                        </div>
-
-                        {{-- Status --}}
-                        <div>
-                            <label class="block text-sm font-medium mb-1">Status</label>
-                            <div class="flex gap-6">
-                                <label>
-                                    <input type="radio" name="is_active" value="1"
-                                        {{ $product->is_active ? 'checked' : '' }}>
-                                    Active
-                                </label>
-                                <label>
-                                    <input type="radio" name="is_active" value="0"
-                                        {{ !$product->is_active ? 'checked' : '' }}>
-                                    Inactive
-                                </label>
-                            </div>
-                        </div>
-
-                        {{-- Existing Images --}}
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Existing Images</label>
-
-                            <div class="grid grid-cols-4 gap-4">
-                                @foreach($product->images as $image)
-                                    <div class="relative border rounded p-2">
-                                        <img src="{{ asset('storage/'.$image->path) }}"
-                                             class="w-full h-24 object-cover rounded">
-
-                                        {{-- Primary --}}
-                                        <div class="mt-2 text-xs">
-                                            <input type="radio"
-                                                   name="primary_image"
-                                                   value="{{ $image->id }}"
-                                                   {{ $image->is_primary ? 'checked' : '' }}>
-                                            Primary
-                                        </div>
-
-                                        {{-- Delete --}}
-                                        {{-- <form method="POST"
-                                              action="{{ route('admin.products.images.destroy', $image) }}"
-                                              class="absolute top-1 right-1">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="button"
-                                                onclick="confirmDelete(this)"
-                                                class="text-red-600 text-xs">
-                                                ✕
-                                            </button>
-                                        </form> --}}
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-
-                        {{-- Add New Images --}}
-                        <div>
-                            <label class="block text-sm font-medium mb-1">Add New Images</label>
-                            <input type="file" name="images[]" multiple
-                                   class="block w-full text-sm">
-                        </div>
-
-                        {{-- Actions --}}
-                        <div class="flex justify-end gap-4 pt-4 border-t">
-                            <a href="{{ route('admin.products.index') }}"
-                               class="bg-gray-200 px-4 py-2 rounded">
-                                Cancel
-                            </a>
-                            <button class="bg-blue-700 text-white px-6 py-2 rounded">
-                                Update Product
-                            </button>
-                        </div>
-
-                    </form>
-
+            <!-- Price & Stock -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Price
+                    </label>
+                    <input
+                        name="price"
+                        type="number"
+                        step="0.01"
+                        value="{{ $product->price }}"
+                        class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-700
+                               focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                               transition"
+                    >
                 </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Stock
+                    </label>
+                    <input
+                        name="stock"
+                        type="number"
+                        value="{{ $product->stock }}"
+                        class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-700
+                               focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                               transition"
+                    >
+                </div>
+            </div>
+
+            <!-- Status -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-3">
+                    Status
+                </label>
+
+                <div class="flex items-center gap-8">
+                    <label class="inline-flex items-center gap-2 cursor-pointer">
+                        <input type="radio"
+                               name="is_active"
+                               value="1"
+                               {{ $product->is_active ? 'checked' : '' }}
+                               class="text-green-600 focus:ring-green-500">
+                        <span class="text-sm text-gray-700">Active</span>
+                    </label>
+
+                    <label class="inline-flex items-center gap-2 cursor-pointer">
+                        <input type="radio"
+                               name="is_active"
+                               value="0"
+                               {{ !$product->is_active ? 'checked' : '' }}
+                               class="text-red-600 focus:ring-red-500">
+                        <span class="text-sm text-gray-700">Inactive</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Existing Images -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-3">
+                    Existing Images
+                </label>
+
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    @foreach($product->images as $image)
+                        <div class="relative border border-gray-200 rounded-lg p-2">
+                            <img
+                                src="{{ asset('storage/'.$image->path) }}"
+                                class="w-full h-28 object-cover rounded-md"
+                            >
+
+                            <div class="mt-2 flex items-center gap-2 text-xs text-gray-600">
+                                <input type="radio"
+                                       name="primary_image"
+                                       value="{{ $image->id }}"
+                                       {{ $image->is_primary ? 'checked' : '' }}
+                                       class="text-blue-600 focus:ring-blue-500">
+                                <span>Primary</span>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
+            <!-- Add New Images -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Add New Images
+                </label>
+                <input
+                    type="file"
+                    name="images[]"
+                    multiple
+                    class="block w-full text-sm text-gray-600
+                           file:mr-4 file:py-2.5 file:px-4
+                           file:rounded-lg file:border-0
+                           file:bg-blue-50 file:text-blue-700
+                           hover:file:bg-blue-100 transition"
+                >
+            </div>
+
+            <!-- Actions -->
+            <div class="flex justify-end gap-4 pt-6 border-t border-gray-200">
+                <a href="{{ route('admin.products.index') }}"
+                   class="inline-flex items-center justify-center
+                          rounded-lg bg-gray-200 px-5 py-2.5
+                          text-sm font-semibold text-gray-700
+                          hover:bg-gray-300 transition">
+                    Cancel
+                </a>
+
+                <button type="submit"
+                        class="inline-flex items-center justify-center
+                               rounded-lg bg-blue-700 px-6 py-2.5
+                               text-sm font-semibold text-white
+                               hover:bg-blue-800 transition">
+                    Update Product
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+</div>
             </div>
         </div>
     </div>
