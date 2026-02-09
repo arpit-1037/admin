@@ -69,7 +69,7 @@
                     // console.log(res);        
                     // alert(res.cart_count);   
                     // alert(res);
-                    document.getElementById("cart-count").textContent = res.cart_count;
+                    document.getElementById("cart-count").innerHTML = res.cart_count;
                     if (res && res.success) {
                         if (typeof alertSuccess === 'function') {
                             showSweetAlert(res.message || 'Added to cart');

@@ -4,6 +4,42 @@
             Users
         </h2>
     </x-slot>
+    <x-slot name="sidebar">
+        @include('partials.sidebar')
+    </x-slot>
+    @push('styles')
+    <style>
+        /* Search input */
+        .dataTables_filter input {
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            padding: 6px 10px;
+            margin-left: 8px;
+        }
+
+        /* Pagination buttons */
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            padding: 4px 10px;
+            margin: 0 2px;
+            border-radius: 0.375rem;
+            border: 1px solid #d1d5db;
+            color: #374151 !important;
+        }
+
+        /* Active page */
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: #16a34a !important;
+            color: #ffffff !important;
+            border-color: #16a34a;
+        }
+
+        /* Hover state */
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: #dcfce7 !important;
+            color: #065f46 !important;
+        }
+    </style>
+
 
     <div class="py-10">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -38,13 +74,9 @@
 
         </div>
     </div>
-    
+
 
     @push('scripts')
-
-        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-        <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-        <script src="https://cdn.datatables.net/1.13.7/js/dataTables.tailwindcss.min.js"></script>
 
         <script>
             $(document).ready(function () {
@@ -72,28 +104,37 @@
 
             $(document).on('click', '.toggle-status', function () {
 
-                if (!confirm('Are you sure you want to change user status?')) {
-                    return;
-                }
-
                 let button = $(this);
                 let userId = button.data('id');
 
-                $.ajax({
-                    url: `/admin/users/${userId}/toggle-status`,
-                    type: 'PATCH',
-                    data: {
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function () {
-                        $('#usersTable').DataTable().ajax.reload(null, false);
-                    },
-                    error: function (xhr) {
-                        alert(xhr.responseJSON?.message ?? 'Action failed');
+                alertConfirm({
+                    title: 'Are you sure?',
+                    text: 'Do you want to change user status?',
+                    confirmText: 'Yes, change it'
+                }).then((result) => {
+
+                    if (!result.isConfirmed) {
+                        return;
                     }
+
+                    $.ajax({
+                        url: `/admin/users/${userId}/toggle-status`,
+                        type: 'PATCH',
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function () {
+                            $('#usersTable').DataTable().ajax.reload(null, false);
+                        },
+                        error: function (xhr) {
+                            alertError(xhr.responseJSON?.message ?? 'Action failed');
+                        }
+                    });
+
                 });
             });
         </script>
-
     @endpush
+
+
 </x-app-layout>

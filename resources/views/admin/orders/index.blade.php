@@ -4,6 +4,9 @@
             Orders
         </h2>
     </x-slot>
+    <x-slot name="sidebar">
+        @include('partials.sidebar')
+    </x-slot>
 
     <div class="py-10">
         <div class="max-w-9xl mx-auto sm:px-6 lg:px-10">

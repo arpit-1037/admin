@@ -9,22 +9,39 @@
         const CSRF = document.querySelector('meta[name="csrf-token"]').content;
 
         function handleEmptyCartUI() {
-            // Remove cart table
             document.getElementById('cart-wrapper')?.remove();
-
-            // Show empty cart block
             document.getElementById('empty-cart')?.classList.remove('hidden');
 
-            // Disable place order button
             const btn = document.getElementById('place-order-btn');
-            if (btn) {
-                btn.disabled = true;
-                btn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
-                btn.classList.add('bg-gray-400', 'cursor-not-allowed');
-            }
+
+            if (!btn) return;
+
+            btn.disabled = false;           // 🔑 REQUIRED
+            btn.removeAttribute('disabled');
+
+            btn.type = 'button';
+            btn.textContent = 'Back to Shopping';
+
+            btn.classList.remove(
+                'bg-indigo-600',
+                'hover:bg-indigo-700',
+                'bg-gray-400',
+                'cursor-not-allowed'
+            );
+
+            btn.classList.add(
+                'bg-green-600',
+                'hover:bg-green-700',
+                'cursor-pointer',
+                'text-white'
+            );
+
+            btn.onclick = function () {
+                window.location.href = '/';
+            };
         }
 
-        // REMOVE ITEM
+        // REMOVE ITEM  
         document.addEventListener('click', function (e) {
             const btn = e.target.closest('.remove-item');
             if (!btn) return;
@@ -95,12 +112,14 @@
                     .then(res => res.json())
                     .then(data => {
                         Swal.close();
+                        // alert(res);
 
                         if (!data.success) {
                             alertError(data.message);
+
                             return;
                         }
-
+                        // document.getElementById("cart-count").textContent = res.cart_count;    
                         handleEmptyCartUI();
                         alertSuccess('Cart cleared');
                     });
@@ -117,7 +136,6 @@
 @endpush
 
 @section('content')
-
 
     <body class="bg-gray-100">
 
@@ -137,7 +155,7 @@
                 <div id="empty-cart" class="bg-white p-6 rounded shadow text-center text-gray-600">
                     Your cart is empty.
                 </div>
-            @else   
+            @else
 
                 <div id="cart-wrapper" class="bg-white rounded shadow overflow-hidden">
 
@@ -194,7 +212,7 @@
                 </div>
             @endif
 
-            <div class="mt-6">
+            <div class="mt-6 shopping">
                 <a href="{{ route('guest.products.index') }}" class="text-sm text-indigo-600 hover:underline">
                     ← Continue Shopping
                 </a>
@@ -203,9 +221,8 @@
             <div class="mt-6">
                 <form id="place-order-form" action="{{ route('order.summary') }}" method="get">
                     @csrf
-
-                    <button type="submit" id="place-order-btn" class="w-full py-3 rounded-lg font-semibold
-                            {{ $cartItems->isEmpty()
+                    <button type="button" id="place-order-btn" class="w-full py-3 rounded-lg font-semibold
+                                    {{ $cartItems->isEmpty()
         ? 'bg-gray-400 cursor-not-allowed'
         : 'bg-indigo-600 hover:bg-indigo-700 text-white' }}" {{ $cartItems->isEmpty() ? 'disabled' : '' }}>
                         Place Order

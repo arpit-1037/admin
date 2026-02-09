@@ -15,6 +15,7 @@ class OrderController extends Controller
 
             $orders = Order::query()->select([
                 'id',  
+                'user_id',
                 'total',
                 'status',
                 'payment_intent_id',
@@ -59,6 +60,6 @@ class OrderController extends Controller
                 ->make(true);
         }
 
-        return view('user.orders.index');
+        return view('admin.orders.index');
     }
 }
