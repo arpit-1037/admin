@@ -17,6 +17,13 @@ use App\Http\Controllers\StripeController;
 use BaconQrCode\Renderer\Module\RoundnessModule;
 use App\Http\Controllers\User\ProfileController;
 
+use App\Http\Controllers\User\GoogleAuthController;
+
+Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])
+    ->name('google.login');
+
+Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback']);
+
 /*
 |--------------------------------------------------------------------------
 | ADMIN ROUTES

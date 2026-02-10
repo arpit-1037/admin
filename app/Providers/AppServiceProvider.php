@@ -4,9 +4,9 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
-use App\Models\CartItem;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Auth;
+use App\Models\CartItem;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,16 +21,19 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot()
+    public function boot(): void
     {
+        // ✅ GLOBAL DB SCHEMA FIX (must be first)
+        Schema::defaultStringLength(191);
+
+        // ✅ Share cart count with all views
         View::composer('*', function ($view) {
+            $cartCount = 0;
+
             if (Auth::check()) {
                 $cartCount = CartItem::where('user_id', Auth::id())
-                    ->select('product_id')
-                    ->distinct()
-                    ->count();
-            } else {
-                $cartCount = 0;
+                    ->distinct('product_id')
+                    ->count('product_id');
             }
 
             $view->with('cartCount', $cartCount);
