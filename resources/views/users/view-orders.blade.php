@@ -24,7 +24,7 @@
                         </div>
 
                         <span class="px-3 py-1 rounded-full text-xs font-medium
-                                        {{ $order->status === 'paid'
+                    {{ $order->status === 'paid'
                 ? 'bg-green-100 text-green-700'
                 : ($order->status === 'failed'
                     ? 'bg-red-100 text-red-700'
@@ -35,13 +35,21 @@
 
                     {{-- Items --}}
                     <div class="space-y-4">
+
+                        @php
+                            $sum = 0;
+                        @endphp
+
                         @foreach ($order->items as $item)
 
                             @php
                                 $product = $item->product;
                                 $imageUrl = $product && $product->primaryImage
                                     ? asset('storage/' . $product->primaryImage->path)
-                                    : asset('storage/public/products/placeholders/product.png');
+                                    : asset('storage/products/placeholders/product.png');
+
+                                $line = $item->price * $item->quantity;
+                                $sum += $line;
                             @endphp
 
                             <div class="flex gap-4 items-center border rounded-xl p-4">
@@ -61,16 +69,17 @@
                                     <div class="mt-1 text-xs text-gray-500 flex justify-between">
                                         <span>Qty: {{ $item->quantity }}</span>
                                         <span>₹{{ number_format($item->price, 2) }}</span>
+                                        <span>Line total ₹{{ number_format($line, 2) }}</span>
                                     </div>
                                 </div>
 
-                                
                             </div>
                         @endforeach
-                        {{-- Line total --}}
-                                <div class="flex justify-end text-sm font-semibold text-gray-900">
-                                   Total = ₹{{ number_format($item->price * $item->quantity, 2) }}
-                                </div>
+
+                        {{-- Order Total --}}
+                        <div class="flex justify-end text-sm font-semibold text-gray-900 pt-2 border-t">
+                            Total = ₹{{ number_format($sum, 2) }}
+                        </div>
 
                     </div>
 
