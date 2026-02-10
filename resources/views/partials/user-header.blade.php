@@ -78,33 +78,41 @@
                 <!-- Navigation -->
                 <div class="flex items-center space-x-3 sm:space-x-4">
                     @auth
-                        <!-- My Orders -->
-                        <a href="{{ route('order.view') }}"
-                            class="inline-flex items-center rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition">
-                            My Orders
-                        </a>
 
-                        <!-- Cart -->
-                        <a href="{{ route('cart.view') }}"
-                            class="relative inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 transition">
 
-                            Cart
+                                    <!-- My Orders -->
+                                    <a href="{{ route('order.view') }}"
+                                        class="inline-flex items-center rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border border-indigo-600 transition">
+                                        My Orders
+                                    </a>
 
-                            <span id="cart-count" class="absolute -top-2 -right-2 min-w-[20px] text-center bg-red-600 text-black text-xs font-bold rounded-full px-1.5 py-0.5
-                               {{ $cartCount > 0 ? '' : 'hidden' }}">
-                                {{ $cartCount }}
-                            </span>
+                                    <!-- Cart -->
+                                    <a href="{{ route('cart.view') }}"
+                                        class="relative inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 transition">
 
-                        </a>
+                                        Cart
 
-                        <!-- Logout -->
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit"
-                                class="inline-flex items-center rounded-md bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600 transition focus:outline-none focus:ring-2 focus:ring-red-400">
-                                Logout
-                            </button>
-                        </form>
+                                        <span id="cart-count" class="absolute -top-2 -right-2 min-w-[20px] text-center bg-red-600 text-black text-xs font-bold rounded-full px-1.5 py-0.5
+                                                    {{ $cartCount > 0 ? '' : 'hidden' }}">
+                                            {{ $cartCount }}
+                                        </span>
+
+                                    </a>
+
+                                    <!-- Profile -->
+                                    <a href="{{ route('profile-user.edit') }}" class="inline-flex bg-indigo-600 items-center rounded-md border border-indigo-600 px-4 py-2 text-sm font-medium text-white
+                          hover:bg-indigo-500 hover:text-white transition">
+                                        Profile
+                                    </a>
+
+                                    <!-- Logout -->
+                                    <form method="POST" action="{{ route('logout') }}">
+                                        @csrf
+                                        <button type="submit"
+                                            class="inline-flex items-center rounded-md bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600 transition focus:outline-none focus:ring-2 focus:ring-red-400">
+                                            Logout
+                                        </button>
+                                    </form>
                     @endauth
 
                     @guest

@@ -15,6 +15,7 @@ use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\StripeController;
 use BaconQrCode\Renderer\Module\RoundnessModule;
+use App\Http\Controllers\User\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -156,6 +157,14 @@ Route::middleware(['auth', 'role:user'])
             ->name('order.view');
         Route::get('/orders/index', [OrderController::class, 'index'])
             ->name('user.orders.index');
+
+        //profile
+        Route::get('/profile-user', [ProfileController::class, 'edit'])->name('profile-user.edit');
+        Route::patch('/profile-user', [ProfileController::class, 'update'])->name('profile-user.update');
+
+        // 🔑 Change password
+        Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])
+            ->name('profile.password.update');
     });
 
 // The validation is there to prevent users from viewing someone else’s order by URL tampering.
