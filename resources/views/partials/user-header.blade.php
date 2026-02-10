@@ -55,11 +55,11 @@
         window.alertLoading = (msg = 'Please wait...') =>
             Swal.fire({ title: msg, allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
-        document.addEventListener('click', function () {
-            if (Swal.isVisible()) {
-                Swal.close();
-            }
-        });
+        // document.addEventListener('click', function () {
+        //     if (Swal.isVisible()) {
+        //         Swal.close();
+        //     }
+        // });
     </script>
 </head>
 

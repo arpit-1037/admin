@@ -52,6 +52,12 @@
                 }
             });
         };
+
+        // document.addEventListener('click', function () {
+        //     if (Swal.isVisible()) {
+        //         Swal.close();
+        //     }
+        // });
     </script>
 
 

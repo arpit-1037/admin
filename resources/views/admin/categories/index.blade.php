@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Manage all categories in the system
+            Categories
         </h2>
     </x-slot>
 
@@ -13,14 +13,26 @@
         <div class="max-w-9xl mx-auto sm:px-6 lg:px-10">
 
             {{-- Action Bar --}}
+            {{-- Action Bar --}}
             <div class="flex justify-between items-center mb-6">
+                <p class="text-gray-600">
+                    Manage all categories in the system
+                </p>
 
-                <a href="{{ route('admin.categories.create') }}" class=" inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md
+                <a href="{{ route('admin.categories.create') }}" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md
+                          font-semibold text-xs text-black uppercase tracking-widest hover:bg-green-700
+                          focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                    Add Category
+                </a>
+            </div>
+            {{-- <div class="flex justify-between items-center mb-6">
+
+                <a href="{{ route('admin.categories.create') }}" class=" inline-flex items-center px-4 py-2 bg-green-5200 border border-transparent rounded-md
                           font-semibold text-xs text-black uppercase tracking-widest hover:bg-green-700 mb-6
                           focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ">
                     Add Category
                 </a>
-            </div>
+            </div> --}}
 
             {{-- Table Card --}}
             <div class="flex justify-center mt-6 mb-10 px-4">
@@ -50,7 +62,7 @@
                                         <td class="px-6 py-4 text-center">
                                             <span
                                                 class="px-3 py-1 rounded-full text-sm font-medium
-                                                        {{ $category->is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
+                                                            {{ $category->is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
                                                 {{ $category->is_active ? 'Active' : 'Inactive' }}
                                             </span>
                                         </td>
@@ -83,6 +95,27 @@
 
         </div>
     </div>
+    @if(session('category_success'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                showSweetAlert(@json(session('category_success')));
+            });
+        </script>
+    @endif
+    @if(session('category_updated'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                showSweetAlert(@json(session('category_updated')));
+            });
+        </script>
+    @endif
+    @if(session('category_deleted'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                showSweetAlert(@json(session('category_deleted')));
+            });
+        </script>
+    @endif
 
     {{-- Page Scripts --}}
     @push('scripts')

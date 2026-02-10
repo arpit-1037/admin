@@ -1,47 +1,42 @@
 <?php
-
 namespace App\Http\Controllers\Admin;
-
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\Product;
 use Yajra\DataTables\Facades\DataTables;
- use App\Models\ProductImage;
+use App\Models\ProductImage;
 use Illuminate\Support\Facades\Storage;
-
 
 class ProductController extends Controller
 {
-   
-
-public function destroyImage(ProductImage $image)
-{
-    // Do not allow deleting last image
-    if ($image->product->images()->count() <= 1) {
-        return back()->with('error', 'Product must have at least one image.');
-    }
-
-    // If primary image is deleted, assign a new primary
-    if ($image->is_primary) {
-        $newPrimary = $image->product->images()
-            ->where('id', '!=', $image->id)
-            ->first();
-
-        if ($newPrimary) {
-            $newPrimary->update(['is_primary' => true]);
+    public function destroyImage(ProductImage $image)
+    {
+        // Do not allow deleting last image
+        if ($image->product->images()->count() <= 1) {
+            return back()->with('error', 'Product must have at least one image.');
         }
+
+        // If primary image is deleted, assign a new primary
+        if ($image->is_primary) {
+            $newPrimary = $image->product->images()
+                ->where('id', '!=', $image->id)
+                ->first();
+
+            if ($newPrimary) {
+                $newPrimary->update(['is_primary' => true]);
+            }
+        }
+
+        // Delete file from storage
+        Storage::disk('public')->delete($image->path);
+
+        // Delete DB record
+        $image->delete();
+
+        return back()->with('success', 'Image deleted successfully.');
     }
-
-    // Delete file from storage
-    Storage::disk('public')->delete($image->path);
-
-    // Delete DB record
-    $image->delete();
-
-    return back()->with('success', 'Image deleted successfully.');
-}
     public function index(Request $request)
     {
         if ($request->ajax()) {
@@ -78,6 +73,20 @@ public function destroyImage(ProductImage $image)
                     </form>
                 ';
                 })
+                ->editColumn('image', function ($product) {
+                    $url = $product->primaryImage
+                        ? asset('storage/' . $product->primaryImage->path)
+                        : asset('storage/placeholders/product.svg');
+
+                    return '
+        <img
+            src="' . $url . '"
+            data-full="' . $url . '"
+            class="product-thumb h-12 w-12 object-cover rounded cursor-pointer"
+        >
+    ';
+                })
+                ->rawColumns(['image', 'status', 'actions'])
                 ->rawColumns(['image', 'status', 'actions'])
                 ->make(true);
         }
@@ -128,7 +137,7 @@ public function destroyImage(ProductImage $image)
 
         return redirect()
             ->route('admin.products.index')
-            ->with('success', 'Product created successfully.');
+            ->with('success_product_created', 'Product created successfully.');
     }
 
     public function edit(Product $product)

@@ -51,15 +51,29 @@
 
         </div>
     </div>
+    @if(session('success_product_created'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                showSweetAlert(@json(session('success_product_created')));
+            });
+        </script>
+    @endif
+    @if(session('success'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                showSweetAlert(@json(session('success')));
+            });
+        </script>
+    @endif
+    @if(session('success'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                showSweetAlert(@json(session('success')));
+            });
+        </script>
+    @endif
 
     @push('scripts')
-
-        {{-- jQuery --}}
-        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
-        {{-- DataTables --}}
-        <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-        <script src="https://cdn.datatables.net/1.13.7/js/dataTables.tailwindcss.min.js"></script>
 
         {{-- DataTable Init --}}
         <script>
@@ -89,6 +103,32 @@
                         { data: 'status', orderable: false, searchable: false },
                         { data: 'actions', orderable: false, searchable: false }
                     ]
+                });
+            });
+            document.addEventListener('click', function (e) {
+                const img = e.target.closest('.product-thumb');
+                if (!img) return;
+
+                const fullImage = img.dataset.full;
+
+                Swal.fire({
+                    imageUrl: fullImage,
+                    imageAlt: 'Product Image',
+                    showConfirmButton: false,
+
+                    // ✅ FRAME CONTROL
+                    width: 'auto',
+                    padding: '1rem',
+                    background: '#fff',
+
+                    didOpen: () => {
+                        const swalImage = Swal.getImage();
+                        if (swalImage) {
+                            swalImage.style.maxWidth = '80vw';   // ⬅ max width
+                            swalImage.style.maxHeight = '80vh';  // ⬅ max height
+                            swalImage.style.objectFit = 'contain';
+                        }
+                    }
                 });
             });
         </script>
