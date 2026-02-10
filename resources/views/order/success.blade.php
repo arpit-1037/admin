@@ -84,4 +84,11 @@
             });
         </script>
     @endif
+    @if (session('success'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                showSweetAlert(@json(session('success')));
+            });
+        </script>
+    @endif
 @endsection

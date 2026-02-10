@@ -2,6 +2,17 @@
 @section('title', 'User Dashboard')
 @push('scripts')
     <script>
+        document.addEventListener('input', function (e) {
+            if (!e.target.classList.contains('qty-input')) return;
+
+            let value = e.target.value.replace(/\D/g, ''); // numbers only
+
+            if (value.length > 3) {
+                value = value.slice(0, 3); // max 3 digits
+            }
+
+            e.target.value = value || 1;
+        });
         /* -----------------------------
          * Quantity Controls
          * ----------------------------- */

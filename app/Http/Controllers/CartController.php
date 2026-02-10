@@ -15,21 +15,43 @@ class CartController extends Controller
             'quantity'   => 'required|integer|min:1',
         ]);
 
-        $user = auth::user();
-        $quantity = $request->quantity;
+        $user = Auth::user();
+        $quantity = (int) $request->quantity;
 
-        $cartItem = CartItem::where('user_id', $user->id)
+        $cartItem = CartItem::with('product')
+            ->where('user_id', $user->id)
             ->where('product_id', $request->product_id)
             ->first();
 
+        // If item already exists in cart
         if ($cartItem) {
-            // ✅ Add selected quantity
-            $cartItem->increment('quantity', $quantity);
+
+            $newQty = $cartItem->quantity + $quantity;
+
+            // 🔴 STOCK CHECK (via relationship)
+            if ($newQty > $cartItem->product->stock) {
+                return back()->withErrors([
+                    'stock' => "Only {$cartItem->product->stock} items available."
+                ]);
+            }
+
+            $cartItem->update(['quantity' => $newQty]);
         } else {
+
+            // First time add → load product safely
+            $product = CartItem::make()->product()->getRelated()
+                ->findOrFail($request->product_id);
+
+            if ($quantity > $product->stock) {
+                return back()->withErrors([
+                    'stock' => "Only {$product->stock} items available."
+                ]);
+            }
+
             CartItem::create([
                 'user_id'    => $user->id,
                 'product_id' => $request->product_id,
-                'quantity'   => $quantity, // ✅ real counter value
+                'quantity'   => $quantity,
             ]);
         }
 
@@ -116,13 +138,36 @@ class CartController extends Controller
 
             case 'add':
                 if ($productId > 0) {
-                    $cartItem = CartItem::where('user_id', $user->id)
+
+                    $cartItem = CartItem::with('product')
+                        ->where('user_id', $user->id)
                         ->where('product_id', $productId)
                         ->first();
 
                     if ($cartItem) {
-                        $cartItem->increment('quantity', $quantity);
+
+                        $newQty = $cartItem->quantity + $quantity;
+
+                        if ($newQty > $cartItem->product->stock) {
+                            return response()->json([
+                                'success' => false,
+                                'message' => "Only {$cartItem->product->stock} items available."
+                            ], 422);
+                        }
+
+                        $cartItem->update(['quantity' => $newQty]);
                     } else {
+
+                        $product = CartItem::make()->product()->getRelated()
+                            ->findOrFail($productId);
+
+                        if ($quantity > $product->stock) {
+                            return response()->json([
+                                'success' => false,
+                                'message' => "Only {$product->stock} items available."
+                            ], 422);
+                        }
+
                         CartItem::create([
                             'user_id'    => $user->id,
                             'product_id' => $productId,
@@ -130,6 +175,7 @@ class CartController extends Controller
                         ]);
                     }
 
+                    // ✅ THIS WAS MISSING
                     $success = true;
                     $message = 'Added to cart';
                 }
@@ -168,7 +214,7 @@ class CartController extends Controller
             ->select('product_id')
             ->distinct()
             ->count();
-            
+
         return response()->json([
             'success'    => $success,
             'message'    => $message,

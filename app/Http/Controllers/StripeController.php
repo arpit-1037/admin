@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\CartItem;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Stripe\Stripe;
 use Stripe\Checkout\Session as StripeSession;
-use Illuminate\Support\Facades\Auth;
-use App\Models\CartItem;
-use Illuminate\Support\Facades\Mail;
+
 class StripeController extends Controller
 {
     public function checkout($orderId)
@@ -41,21 +43,64 @@ class StripeController extends Controller
         return redirect($session->url);
     }
 
+    /**
+     * STRIPE SUCCESS
+     * Stock is reduced here
+     */
     public function success(Order $order)
     {
-        if ($order->payment_status !== 'paid') {
-            $order->update([
-                // 'payment_status'    => 'paid',
-                'payment_method'     => 'stripe',
-                'status'            => 'paid',
-                'payment_intent_id' => request('payment_intent'),
-            ]);
+        // Security: ensure user owns the order
+        if ($order->user_id !== Auth::id()) {
+            abort(403);
         }
-        //  Mail::to($order->user->email)->send(new OrderPlacedMail($order));
-       CartItem::where('user_id', $order->user_id)->delete();
-        return redirect()->route('orders.success', $order->id);
-    }
 
+        DB::beginTransaction();
+
+        try {
+            // Load order items with products
+            $order->load('items.product');
+
+            // 🔴 FINAL STOCK VALIDATION
+            foreach ($order->items as $item) {
+                if ($item->quantity > $item->product->stock) {
+                    throw new \Exception(
+                        "{$item->product->name} has only {$item->product->stock} items left."
+                    );
+                }
+            }
+
+            // Update order status
+            if ($order->status !== 'paid') {
+                $order->update([
+                    'payment_method'    => 'stripe',
+                    'status'            => 'paid',
+                    'payment_intent_id' => request('payment_intent'),
+                ]);
+            }
+
+            // ✅ DECREASE STOCK
+            foreach ($order->items as $item) {
+                $item->product->decrement('stock', $item->quantity);
+            }
+
+            // Clear cart
+            CartItem::where('user_id', $order->user_id)->delete();
+
+            DB::commit();
+
+            // Optional mail (uncomment if needed)
+            // Mail::to($order->user->email)->queue(new OrderPlacedMail($order));
+
+            return redirect()->route('orders.success', $order->id)->with('success', 'yeah! Your Order placed successfully');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            logger()->error($e->getMessage());
+
+            return redirect()
+                ->route('cart.view')
+                ->with('error', $e->getMessage() ?: 'Payment succeeded but stock update failed.');
+        }
+    }
 
     public function cancel(Order $order)
     {
@@ -64,15 +109,12 @@ class StripeController extends Controller
             abort(403);
         }
 
-        // Optional: update order status if needed
-        if ($order->payment_status !== 'paid') {
+        if ($order->status !== 'paid') {
             $order->update([
-                'payment_status' => 'pending',
-                'status'         => 'pending',
+                'status' => 'pending',
             ]);
         }
 
-        // Redirect user back to checkout or cart
         return redirect()
             ->route('checkout.index')
             ->with('error', 'Payment was cancelled. You can try again.');

@@ -17,4 +17,12 @@
         </div>
 
     </div>
+    @if(session('welcome_message'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                showSweetAlert(@json(session('welcome_message')));
+            });
+        </script>
+    @endif
+
 </x-app-layout>
