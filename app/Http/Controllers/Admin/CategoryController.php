@@ -52,11 +52,23 @@ class CategoryController extends Controller
 
     public function update(Request $request, Category $category)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'parent_id' => 'nullable|exists:categories,id',
-            'is_active' => 'required|in:0,1',
-        ]);
+        $request->validate(
+            [
+                'name'      => 'required|string|max:255',
+                'parent_id' => 'nullable|exists:categories,id',
+                'is_active' => 'required|in:0,1',
+            ],
+            [
+                'name.required'      => 'Category name is required.',
+                'name.string'        => 'Category name must be a valid string.',
+                'name.max'           => 'Category name may not be greater than 255 characters.',
+
+                'parent_id.exists'   => 'Selected parent category is invalid.',
+
+                'is_active.required' => 'Status is required.',
+                'is_active.in'       => 'Status must be either active or inactive.',
+            ]
+        );
 
         $category->update([
             'name' => $request->name,

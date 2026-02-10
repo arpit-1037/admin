@@ -43,15 +43,17 @@
 
         </div>
     </div>
+    {{ session('success') }}
 
     @push('scripts')
+        @if(session('success'))
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    showSweetAlert(@json(session('success')));
+                });
+            </script>
+        @endif
 
-        {{-- jQuery --}}
-        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
-        {{-- DataTables --}}
-        <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-        <script src="https://cdn.datatables.net/1.13.7/js/dataTables.tailwindcss.min.js"></script>
 
         {{-- DataTable Init --}}
         <script>
@@ -110,11 +112,21 @@
                         data: {
                             _token: '{{ csrf_token() }}'
                         },
-                        success: function () {
+                        success: function (response) {
+
+                            // ✅ SUCCESS ALERT (using your global function)
+                            showSweetAlert(response.message, 'success');
+
+                            // Reload table without resetting page
                             $('#usersTable').DataTable().ajax.reload(null, false);
                         },
                         error: function (xhr) {
-                            alertError(xhr.responseJSON?.message ?? 'Action failed');
+
+                            // ❌ ERROR ALERT
+                            showSweetAlert(
+                                xhr.responseJSON?.message ?? 'Action failed',
+                                'error'
+                            );
                         }
                     });
                 });

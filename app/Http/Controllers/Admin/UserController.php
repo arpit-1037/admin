@@ -71,10 +71,13 @@ class UserController extends Controller
         $user->save();
 
         return response()->json([
-            'status' => $user->is_active,
-            'label'  => $user->is_active ? 'Active' : 'Inactive'
+            'success' => true,
+            'message' => $user->is_active
+                ? 'User activated successfully.'
+                : 'User deactivated successfully.'
         ]);
     }
+    // ->with('success', 'status changed successfuly!');
 
     public function create()
     {

@@ -65,6 +65,11 @@ Route::middleware(['auth', 'role:admin'])
             'categories/{category}/delete',
             [CategoryController::class, 'destroy']
         )->name('categories.delete');
+
+        Route::patch('orders/{order}/toggle-status', [
+            \App\Http\Controllers\Admin\OrderController::class,
+            'toggleStatus'
+        ])->name('orders.toggle-status');
     });
 
 
@@ -117,6 +122,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/checkout/process', function () {
         return view('order.success');
     })->name('checkout.process');
+
+    Route::get('/orders', [OrderController::class, 'viewOrders'])
+        ->name('order.view');
 });
 /*
 |--------------------------------------------------------------------------
@@ -153,8 +161,7 @@ Route::middleware(['auth', 'role:user'])
         Route::get('/dashboard', [CatalogController::class, 'index'])
             ->name('user.dashboard');
 
-        Route::get('/orders', [OrderController::class, 'viewOrders'])
-            ->name('order.view');
+
         Route::get('/orders/index', [OrderController::class, 'index'])
             ->name('user.orders.index');
 

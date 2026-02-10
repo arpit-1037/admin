@@ -98,12 +98,13 @@
                                         </span>
 
                                     </a>
-
+                                    @if(auth()->user()->role !== 'admin')
                                     <!-- Profile -->
                                     <a href="{{ route('profile-user.edit') }}" class="inline-flex bg-indigo-600 items-center rounded-md border border-indigo-600 px-4 py-2 text-sm font-medium text-white
                           hover:bg-indigo-500 hover:text-white transition">
                                         Profile
                                     </a>
+                                    @endif
 
                                     <!-- Logout -->
                                     <form method="POST" action="{{ route('logout') }}">

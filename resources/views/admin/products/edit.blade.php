@@ -10,6 +10,16 @@
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white shadow-sm sm:rounded-lg">
                 <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                    @if ($errors->any())
+                        <div class="mb-4 rounded-lg  p-4 text-red-700">
+                            <strong class="block mb-2">Please fix the following errors:</strong>
+                            <ul class="list-disc list-inside">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
     <div class="bg-white shadow-lg rounded-xl p-6 sm:p-8">
 
         <form method="POST"

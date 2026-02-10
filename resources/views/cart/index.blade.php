@@ -17,6 +17,12 @@
 
             const btn = document.getElementById('place-order-btn');
             if (!btn) return;
+            // ✅ HIDE CART COUNT
+            const cartCount = document.getElementById('cart-count');
+            if (cartCount) {
+                cartCount.textContent = '0';
+                cartCount.classList.add('hidden');
+            }
 
             btn.disabled = false;
             btn.type = 'button';
@@ -211,7 +217,7 @@
                     method="get">
                     @csrf
                     <button id="place-order-btn" type="{{ $cartItems->isEmpty() ? 'button' : 'submit' }}" class="w-full py-3 rounded-lg font-semibold
-                    {{ $cartItems->isEmpty()
+                        {{ $cartItems->isEmpty()
         ? 'bg-green-600 hover:bg-green-700 text-white'
         : 'bg-indigo-600 hover:bg-indigo-700 text-white' }}">
                         {{ $cartItems->isEmpty() ? 'Back to Shopping' : 'Place Order' }}

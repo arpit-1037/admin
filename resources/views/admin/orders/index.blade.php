@@ -34,6 +34,7 @@
                                     <th class="px-6 py-4 text-center font-semibold text-gray-700">Status</th>
                                     <th class="px-6 py-4 text-left font-semibold text-gray-700">Payment Intent</th>
                                     <th class="px-6 py-4 text-left font-semibold text-gray-700">Created At</th>
+                                    <th class="px-6 py-4 text-center font-semibold text-gray-700">Action</th>
                                 </tr>
                             </thead>
                         </table>
@@ -64,7 +65,7 @@
                     pageLength: 10,
                     lengthChange: false,
                     ordering: true,
-                    responsive: false, // IMPORTANT: keeps layout identical
+                    responsive: false,
 
                     order: [[6, 'desc']],
 
@@ -90,13 +91,48 @@
                             orderable: false,
                             searchable: false
                         },
-                        { data: 'created_at' }
+                        { data: 'created_at' },
+                        {
+                            data: 'action',
+                            orderable: false,
+                            searchable: false,
+                            className: 'text-center'
+                        }
                     ]
+                });
+            });
+
+            // Toggle Order Status
+            $(document).on('click', '.toggle-status', function () {
+
+                const orderId = $(this).data('id');
+
+                alertConfirm({
+                    title: 'Change order status?',
+                    text: 'Do you want to update the order status?',
+                    confirmText: 'Yes, update'
+                }).then(result => {
+
+                    if (!result.isConfirmed) return;
+
+                    $.ajax({
+                        url: `/admin/orders/${orderId}/toggle-status`,
+                        type: 'PATCH',
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function () {
+                            $('#ordersTable').DataTable().ajax.reload(null, false);
+                        },
+                        error: function (xhr) {
+                            alertError(xhr.responseJSON?.message ?? 'Status update failed');
+                        }
+                    });
                 });
             });
         </script>
 
-        {{-- EXACT SAME TAILWIND OVERRIDES AS CATEGORIES --}}
+        {{-- Tailwind Overrides --}}
         <style>
             table.dataTable tbody tr {
                 border-top: 1px solid #d1d5db;
