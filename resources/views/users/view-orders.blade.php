@@ -24,7 +24,7 @@
                         </div>
 
                         <span class="px-3 py-1 rounded-full text-xs font-medium
-                    {{ $order->status === 'paid'
+                                            {{ $order->status === 'paid'
                 ? 'bg-green-100 text-green-700'
                 : ($order->status === 'failed'
                     ? 'bg-red-100 text-red-700'
@@ -34,11 +34,9 @@
                     </div>
 
                     {{-- Items --}}
-                    <div class="space-y-4">
+                    <div class="space-y-5">
 
-                        @php
-                            $sum = 0;
-                        @endphp
+                        @php $sum = 0; @endphp
 
                         @foreach ($order->items as $item)
 
@@ -52,33 +50,69 @@
                                 $sum += $line;
                             @endphp
 
-                            <div class="flex gap-4 items-center border rounded-xl p-4">
+                            <div
+                                class="flex items-center gap-5 bg-white border border-gray-200 rounded-2xl p-5 hover:shadow-sm transition">
 
-                                {{-- Image --}}
-                                <div class="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                                {{-- Product Image --}}
+                                <div class="w-20 h-20 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
                                     <img src="{{ $imageUrl }}" class="w-full h-full object-cover"
                                         onerror="this.src='{{ asset('storage/products/placeholders/product.png') }}'">
                                 </div>
 
-                                {{-- Info --}}
+                                {{-- Product Info --}}
                                 <div class="flex-1 min-w-0">
+
                                     <h3 class="text-sm font-semibold text-gray-900 truncate">
                                         {{ $product?->name ?? 'Product unavailable' }}
                                     </h3>
 
-                                    <div class="mt-1 text-xs text-gray-500 flex justify-between">
-                                        <span>Qty: {{ $item->quantity }}</span>
-                                        <span>₹{{ number_format($item->price, 2) }}</span>
-                                        <span>Line total ₹{{ number_format($line, 2) }}</span>
+                                    <div class="mt-2 flex items-center gap-6 text-sm text-gray-600">
+
+                                        <div>
+                                            <span class="text-gray-400">Qty</span>
+                                            <div class="font-medium text-gray-800">
+                                                {{ $item->quantity }}
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <span class="text-gray-400">Price</span>
+                                            <div class="font-medium text-gray-800">
+                                                ₹{{ number_format($item->price, 2) }}
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                                {{-- Line Total (Right Aligned) --}}
+                                <div class="text-right min-w-[120px]">
+                                    <span class="text-xs text-gray-400 uppercase tracking-wide">
+                                        Line Total
+                                    </span>
+                                    <div class="text-base font-semibold text-gray-900 mt-1">
+                                        ₹{{ number_format($line, 2) }}
                                     </div>
                                 </div>
 
                             </div>
+
                         @endforeach
 
-                        {{-- Order Total --}}
-                        <div class="flex justify-end text-sm font-semibold text-gray-900 pt-2 border-t">
-                            Total = ₹{{ number_format($sum, 2) }}
+
+                        {{-- Order Summary --}}
+                        <div class="flex justify-end pt-6 border-t border-gray-200">
+
+                            <div class="w-full max-w-[200px] bg-gray-50 rounded-xl p-3">
+
+                                <div class="flex justify-between mt-2 text-base font-semibold text-gray-900">
+                                    <span>Total</span>
+                                    <span>₹{{ number_format($sum, 2) }}</span>
+                                </div>
+
+                            </div>
+
                         </div>
 
                     </div>
@@ -95,15 +129,23 @@
         {{-- SUMMARY --}}
         <div>
             <div class="bg-blue-50 border rounded-2xl shadow-sm p-5 space-y-3">
-                <div class="bg-blue-50">
-                    <h3 class="text-lg font-semibold text-gray-900">Orders Summary</h3>
+                <div class="bg-white border border-blue-100 rounded-2xl p-6 shadow-sm">
 
-                    <div class="flex justify-between text-sm text-gray-600">
-                        <span>Total Orders</span>
-                        <span>{{ $orders->count() }}</span>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-medium text-blue-600 uppercase tracking-wide">
+                                Orders Summary
+                            </p>
+                            <p class="text-sm text-gray-500 mt-1">
+                                Total Orders
+                            </p>
+                        </div>
+                        <div class="text-2xl font-bold text-blue-700">
+                            {{ $orders->count() }}
+                        </div>
                     </div>
-                </div>
 
+                </div>
                 <div class="bg-blue-50 p-3 rounded-lg border-t pt-3 flex justify-between font-semibold text-gray-900">
                     <span>Total Spent</span>
                     <span>₹{{ number_format($orders->sum('total'), 2) }}</span>

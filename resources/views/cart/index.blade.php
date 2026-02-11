@@ -75,6 +75,19 @@
                         row.remove();
                         alertSuccess('Item removed');
 
+                        // ✅ UPDATE NAVBAR CART COUNT
+                        const cartCount = document.getElementById('cart-count');
+                        if (cartCount) {
+                            cartCount.textContent = data.cart_count;
+
+                            if (data.cart_count > 0) {
+                                cartCount.classList.remove('hidden');
+                            } else {
+                                cartCount.classList.add('hidden');
+                            }
+                        }
+
+                        // ✅ IF NO ROWS LEFT → EMPTY STATE
                         if (!document.querySelector('.cart-row')) {
                             handleEmptyCartUI();
                         }
@@ -217,7 +230,7 @@
                     method="get">
                     @csrf
                     <button id="place-order-btn" type="{{ $cartItems->isEmpty() ? 'button' : 'submit' }}" class="w-full py-3 rounded-lg font-semibold
-                        {{ $cartItems->isEmpty()
+                            {{ $cartItems->isEmpty()
         ? 'bg-green-600 hover:bg-green-700 text-white'
         : 'bg-indigo-600 hover:bg-indigo-700 text-white' }}">
                         {{ $cartItems->isEmpty() ? 'Back to Shopping' : 'Place Order' }}

@@ -127,13 +127,29 @@
                                 }
                             }
                         },
-                        error: function () {
-                            if (typeof alertError === 'function') {
-                                alertError('Server error while adding to cart');
+                        error: function (xhr) {
+
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: 'Stock Limit',
+                                    text: xhr.responseJSON.message
+                                });
+
+                            } else {
+
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Server Error',
+                                    text: 'Unexpected server error.'
+                                });
+
                             }
                         },
                         complete: function () {
-                            setTimeout(() => $btn.prop('disabled', false), 600);
+                            // 🔥 IMPORTANT FIX — always re-enable
+                            $btn.prop('disabled', false);
                         }
                     });
                 });
