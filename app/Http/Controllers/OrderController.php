@@ -34,21 +34,23 @@ class OrderController extends Controller
             'addresses'
         ));
     }
-
+    
     public function success($orderId)
     {
         $order = Order::with(['items.product'])
             ->where('id', $orderId)
-            ->when(Auth::check(), function ($query) {
-                $query->where('user_id', Auth::id());
-            })
+            ->where('user_id', Auth::id())
             ->firstOrFail();
 
-        Mail::to($order->user->email)->queue(
-            new OrderPlacedMail($order)
-        );
+        // Allow access only once after redirect
+        if (!session()->has('order_success')) {
+            return redirect()->route('guest.products.index');
+        }
 
-        return view('order.success', compact('order'));
+        // Remove flash so refresh won't work
+        session()->forget('order_success');
+
+        return view('order.success', compact('order'))->with('');
     }
 
     public function viewOrders()
@@ -58,7 +60,7 @@ class OrderController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('users.view-orders', compact('orders'));
+                 return view('users.view-orders', compact('orders'));
     }
 
     public function index(Request $request)

@@ -10,6 +10,7 @@ use App\Models\Product;
 use Yajra\DataTables\Facades\DataTables;
 use App\Models\ProductImage;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
 
 class ProductController extends Controller
 {
@@ -100,6 +101,7 @@ class ProductController extends Controller
     public function create()
     {
         $categories = Category::where('is_active', true)->get();
+        Cache::flush();
         return view('admin.products.create', compact('categories'));
     }
 
@@ -146,6 +148,7 @@ class ProductController extends Controller
     {
         $categories = Category::where('is_active', true)->get();
         $product->load('images');
+        Cache::flush();
 
         return view('admin.products.edit', compact('product', 'categories'));
     }
@@ -223,6 +226,7 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         $product->delete();
+        Cache::flush();
 
         return redirect()->route('admin.products.index')
             ->with('success', 'Product deleted successfully.');
