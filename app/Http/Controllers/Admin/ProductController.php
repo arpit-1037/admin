@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
+
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
@@ -158,7 +160,7 @@ class ProductController extends Controller
             'stock'       => 'required|integer|min:0',
             'is_active'   => 'required|in:0,1',
             'images.*'    => 'image|mimes:jpg,jpeg,png,webp|max:2048',
-            'primary_image' => 'nullable|exists:product_images,id',
+            'primary_image' => 'nullable',
         ]);
 
         $product->update([
@@ -171,23 +173,46 @@ class ProductController extends Controller
             'is_active'   => $request->boolean('is_active'),
         ]);
 
-        // Add new images
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $path = $image->store('products', 'public');
-                $product->images()->create([
-                    'path' => $path,
-                    'is_primary' => false,
-                ]);
-            }
-        }
+        /*
+    |--------------------------------------------------------------------------
+    | 1️⃣ Handle Existing Primary Selection
+    |--------------------------------------------------------------------------
+    */
 
-        // Update primary image
-        if ($request->primary_image) {
+        if (
+            $request->filled('primary_image')
+            && $request->primary_image != 1
+            && $product->images()->where('id', $request->primary_image)->exists()
+        ) {
+
             $product->images()->update(['is_primary' => false]);
+
             $product->images()
                 ->where('id', $request->primary_image)
                 ->update(['is_primary' => true]);
+        }
+
+        /*
+    |--------------------------------------------------------------------------
+    | 2️⃣ Handle New Images Upload (Single Clean Block)
+    |--------------------------------------------------------------------------
+    */
+
+        if ($request->hasFile('images')) {
+            $setNewPrimary = $request->primary_image == 1;
+            foreach ($request->file('images') as $index => $file) {
+                $path = $file->store('products', 'public');
+                $isPrimary = false;
+                if ($setNewPrimary && $index === 0) {
+                    // Reset old primary
+                    $product->images()->update(['is_primary' => false]);
+                    $isPrimary = true;
+                }
+                $product->images()->create([
+                    'path' => $path,
+                    'is_primary' => $isPrimary,
+                ]);
+            }
         }
 
         return redirect()
