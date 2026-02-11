@@ -77,6 +77,11 @@ Route::middleware(['auth', 'role:admin'])
             \App\Http\Controllers\Admin\OrderController::class,
             'toggleStatus'
         ])->name('orders.toggle-status');
+
+        Route::delete(
+            'users/{user}',
+            [UserController::class, 'destroy']
+        )->name('users.destroy');
     });
 
 

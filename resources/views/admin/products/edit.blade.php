@@ -193,7 +193,6 @@
     <span>Set first uploaded image as primary</span>
 </div>
                             </div>
-
                             <!-- Actions -->
                             <div class="flex justify-end gap-4 pt-6 border-t border-gray-200">
                                 <a href="{{ route('admin.products.index') }}"

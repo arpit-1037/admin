@@ -95,6 +95,8 @@
 
             $(document).on('click', '.toggle-status', function () {
 
+
+
                 let button = $(this);
                 let userId = button.data('id');
 
@@ -125,6 +127,42 @@
                             // ❌ ERROR ALERT
                             showSweetAlert(
                                 xhr.responseJSON?.message ?? 'Action failed',
+                                'error'
+                            );
+                        }
+                    });
+                });
+            });
+
+            $(document).on('click', '.delete-user', function () {
+
+                let button = $(this);
+                let userId = button.data('id');
+
+                alertConfirm({
+                    title: 'Delete User?',
+                    text: 'This user will be soft deleted and can be restored later.',
+                    confirmText: 'Yes, delete'
+                }).then((result) => {
+
+                    if (!result.isConfirmed) return;
+
+                    $.ajax({
+                        url: `/admin/users/${userId}`,
+                        type: 'DELETE',
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function (response) {
+
+                            showSweetAlert(response.message ?? 'User deleted successfully.', 'success');
+
+                            // Reload DataTable without resetting page
+                            $('#usersTable').DataTable().ajax.reload(null, false);
+                        },
+                        error: function (xhr) {
+                            showSweetAlert(
+                                xhr.responseJSON?.message ?? 'Delete failed',
                                 'error'
                             );
                         }
