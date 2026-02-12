@@ -17,8 +17,13 @@
                 <p class="text-gray-600">
                     Manage all registered users
                 </p>
-            </div>
 
+                <a href="{{ route('admin.users.create') }}" class="inline-flex items-center px-4 py-2
+              bg-green-600 text-white text-sm font-semibold
+              rounded-md shadow-sm hover:bg-green-700 transition">
+                    + Add User
+                </a>
+            </div>
             {{-- Table Card --}}
             <div class="flex justify-center mt-6 mb-10 px-4">
                 <div class="bg-white shadow-xl rounded-lg w-full max-w-screen-xl">
@@ -43,18 +48,22 @@
 
         </div>
     </div>
-    {{ session('success') }}
-
+    {{-- {{ session('success') }} --}}
+    @if(session('user_created'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                showSweetAlert(@json(session('user_created')), 'success');
+            });
+        </script>
+    @endif
+    @if(session('user_updated'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                showSweetAlert(@json(session('user_updated')), 'success');
+            });
+        </script>
+    @endif
     @push('scripts')
-        @if(session('success'))
-            <script>
-                document.addEventListener('DOMContentLoaded', function () {
-                    showSweetAlert(@json(session('success')));
-                });
-            </script>
-        @endif
-
-
         {{-- DataTable Init --}}
         <script>
             $(document).ready(function () {

@@ -37,7 +37,6 @@ Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
-
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])
             ->name('dashboard');
 
@@ -82,6 +81,18 @@ Route::middleware(['auth', 'role:admin'])
             'users/{user}',
             [UserController::class, 'destroy']
         )->name('users.destroy');
+
+        Route::get('users/create', [UserController::class, 'create'])
+            ->name('users.create');
+
+        Route::post('users/store', [UserController::class, 'store'])
+            ->name('users.store');
+
+        Route::get('users/{user}/edit', [UserController::class, 'edit'])
+            ->name('users.edit');
+
+        Route::put('users/{user}', [UserController::class, 'update'])
+            ->name('users.update');
     });
 
 
