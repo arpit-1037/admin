@@ -93,7 +93,7 @@ Route::middleware(['auth', 'role:admin'])
 Route::post('/cart/action', [CartController::class, 'handleAjax'])
     ->name('cart.action');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'active'])->group(function () {
 
     // AJAX CART ACTIONS (NEW)
     Route::get('/cart/action', [CartController::class, 'handleAjax'])
@@ -167,7 +167,7 @@ Route::middleware([
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'role:user'])
+Route::middleware(['auth', 'role:user', 'active'])
     ->prefix('user')
     ->group(function () {
         Route::get('/dashboard', [CatalogController::class, 'index'])
